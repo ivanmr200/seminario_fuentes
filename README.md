@@ -1,4 +1,4 @@
-<img src="https://www.ubu.es/sites/default/files/hightlight/images/escudo_cuatricromia_tl2l-negro.png" width="300" height="120"/>
+<img src="https://www.ubu.es/sites/default/files/hightlight/images/escudo_color_tl_0.jpg" width="300" height="120"/>
 
 # Relacion entre la contaminación del aire y el número de personas con alergia          
   
