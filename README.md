@@ -1,7 +1,7 @@
 <img src="https://www.ubu.es/sites/default/files/hightlight/images/escudo_color_tl_0.jpg" width="300" height="120"/>
 
-# Relacion entre la contaminación del aire y el número de personas con alergia          
+# Contaminación y muerte prenatal          
   
-En este seminario trataremos de demostrar si existe una relación entre la contaminación del aire en los distintos paises del mundo con el porcentaje de poblacioón que padece de alguna patología sobre alergias
+En este seminario trataremos de demostrar si existe una relación entre las muertes prenatales en España con la contaminación del aire en las distintas comunidades autónomas.
 
 
