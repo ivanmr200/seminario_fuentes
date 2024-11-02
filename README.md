@@ -1,4 +1,4 @@
-<img src="https://www.ubu.es/sites/default/files/hightlight/images/escudo_color_tl_0.jpg" width="300" height="120"/> 
+<img src="https://www.ubu.es/sites/default/files/hightlight/images/escudo_color_tl_0.jpg" width="300" height="120"/> <img src='./Input/IMAGES/muerte_fetal.webp' align="right" height="120" />
  
 # Contaminación y muerte prenatal          
   
