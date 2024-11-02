@@ -2,7 +2,10 @@
 title: "Contaminación y muerte prenatal"
 author: "Alvar Martínez e Iván Mamolar"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document:
+    toc: true
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +14,25 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introducción
 
-En este seminario se tratará de demostrar si existe alguna relación entre la contaminación del aire y acústica con la mortalidad prenatal en cada comunidad autónoma.
+
+La **mortalidad prenatal** se refiere a aquellos bebés que fallecen pasadas las 28 semanas de embarazo (a partir del séptimo mes) y que no llegan a término.
+Las pricipales causas son las complicaciones que surgen durante el embarazo ya sean por infecciones como sífilis o VIH, otros tipos de anomalías maternas, como diabetes o hipertensión o hábitos perjudiciales como el consumo de tabaco o el alcohol.
+
+Además de estos factores, las condiciones ambientales pueden tener un efecto negativo en el embarazo. Estudios sugieren que la presencia de contaminantes en el aire pueden causar complicaciones en el embarazo e incluso aumentar la probabilidad de partos prematuros, así como la exposición al ruido puede tener efectos adversos para el embarazo pudiendo llegar a afectar a la mortalidad prenatal. 
+
+En este seminario, vamos a tratar de demostrar si estos estudios se cumplen en las distintas comunidades autónomas españolas, analizando la relación que hay entre la **calidad del aire** y la **contaminación acústica** con la mortalidad prenatal.
+
+![](./Input/IMAGES/muerteprenatal.jpg)
+
+## Objetivos
+
+El objetivo principal es demostrar si la contaminación del aire y la exposición al ruido pueden estar asociados con el número de casos de mortalidad fetal, a través de:
+
+  - Analizar la concentración de PM 2.5 y PM 10 en el aire por comunidad autónoma.
+  - Estudiar la relación entre la calidad del aire y mortalidad prenatal.
+  - Analizar el porcentaje de población afectada por exceso de ruido en cada CCAA.
+  - Estudiar la relación entre el exceso de ruido y mortalidad prenatal.
+
 
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
