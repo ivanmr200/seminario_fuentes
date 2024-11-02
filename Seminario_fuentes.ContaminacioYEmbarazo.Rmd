@@ -1,5 +1,5 @@
 ---
-title: "Contaminación y muerte prenatal"
+title: "**Contaminación y muerte prenatal**"
 author: "Alvar Martínez e Iván Mamolar"
 date: "`r Sys.Date()`"
 output:
@@ -7,6 +7,10 @@ output:
     toc: true
     toc_float: true
 ---
+<style>
+body {
+text-align: justify}
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
