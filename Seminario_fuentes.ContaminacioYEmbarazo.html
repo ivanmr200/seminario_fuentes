@@ -1576,6 +1576,21 @@ RUIDO_media &lt;- read_delim(&quot;Input/DATA/poblacion_sufre_ruidos.csv&quot;,
                          delim = &quot;;&quot;, escape_double = FALSE, trim_ws = TRUE, 
                          locale = locale(encoding = &quot;ISO-8859-1&quot;))</code></pre>
 </div>
+<div id="preaparación-datos-csv" class="section level4">
+<h4>Preaparación datos csv</h4>
+<p>Los datos en los arcvhivos csv estan distribuidos de tal forma que
+puede dificultar su comprensión y manejo, por ello vamos a modificarlos
+y ordenarlos.</p>
+<p>El objetivo es conseguir que los años (periodo), que de forma
+predeterminada vienen en una única columna pasen a ser las columnas del
+dataframe y el nombre de las comunidades autónomas las filas. Además,
+eliminar aquellas columnas y filas que no son de nuestro interés</p>
+<pre class="r"><code>PM2_ccaa_media &lt;- PM2_media %&gt;%
+  pivot_wider(names_from = periodo,  
+              values_from = Total)%&gt;% 
+  select(-`Total Nacional`)%&gt;% #Eliminar columna Total Nacional
+  slice(-1)                    #Eliminar fila Total Nacional</code></pre>
+</div>
 <div id="importación-datos-json" class="section level4">
 <h4>Importación datos JSON:</h4>
 <pre class="r"><code>summary(cars)</code></pre>

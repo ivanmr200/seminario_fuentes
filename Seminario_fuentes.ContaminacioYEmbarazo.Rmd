@@ -88,6 +88,21 @@ RUIDO_media <- read_delim("Input/DATA/poblacion_sufre_ruidos.csv",
 
 ```
 
+#### Preaparación datos csv
+
+Los datos en los arcvhivos csv estan distribuidos de tal forma que puede dificultar su comprensión y manejo, por ello vamos a modificarlos y ordenarlos.
+
+El objetivo es conseguir que los años (periodo), que de forma predeterminada vienen en una única columna pasen a ser las columnas del dataframe y el nombre de las comunidades autónomas las filas. Además, eliminar aquellas columnas y filas que no son de nuestro interés
+
+```{r , eval = TRUE,message=FALSE}
+PM2_ccaa_media <- PM2_media %>%
+  pivot_wider(names_from = periodo,  
+              values_from = Total)%>% 
+  select(-`Total Nacional`)%>% #Eliminar columna Total Nacional
+  slice(-1)                    #Eliminar fila Total Nacional
+
+```
+
 
 #### Importación datos JSON:
 
