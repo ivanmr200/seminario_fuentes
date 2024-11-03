@@ -39,7 +39,59 @@ El objetivo principal es demostrar si la contaminación del aire y la exposició
 
 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Metodología
+
+Los datos que vamos a utilizar han sido encontrados en la página oficial del Instituto Nacional de Estadística (INE) en el que se pueden encontrar una gran catidad de datos de diferentes formatos como XLS, csv, JSON ... En nuestro caso los datos sobre mortalidad prenatal y contaminación son de fromato csv y JSON y se encuentran en la carpeta `DATA` dentro de la carpeta `Input` del repositorio.
+
+Para poder utilizar estos conjuntos de datos son necesarios importarlos, para ello utilizaremos las siguientes librerías:
+
+```{r , eval = TRUE,message=FALSE}
+# Datos con formato .csv:
+library(readr)
+
+#Datos con formato .json:
+library(tidyverse)
+library(rjson)
+library(tidyjson)
+
+```
+
+### Importación archivos
+
+Una vez cargadas las librerías se pueden importar los datos. 
+
+#### Importación datos CSV:
+
+En nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. En nuestro caso utilizan la codificacion *ISO 8859-1* que corresponde con el alfabeto español :
+
+```{r , eval = TRUE,message=FALSE}
+
+# Para conocer el tipo de codificación: 
+encoding <- guess_encoding("Input/DATA/media_anual_PM2_5.csv")
+print(encoding)
+
+```
+
+```{r , eval = TRUE,message=FALSE}
+
+PM2_media <- read_delim("Input/DATA/media_anual_PM2_5.csv", 
+                        delim = ";", escape_double = FALSE, trim_ws = TRUE, 
+                        locale = locale(encoding = "ISO-8859-1"))
+
+PM10_media <- read_delim("Input/DATA/media_anual_PM10.csv", 
+                        delim = ";", escape_double = FALSE, trim_ws = TRUE, 
+                        locale = locale(encoding = "ISO-8859-1"))
+
+RUIDO_media <- read_delim("Input/DATA/poblacion_sufre_ruidos.csv", 
+                         delim = ";", escape_double = FALSE, trim_ws = TRUE, 
+                         locale = locale(encoding = "ISO-8859-1"))
+
+```
+
+
+#### Importación datos JSON:
+
+
 
 ```{r cars}
 summary(cars)
