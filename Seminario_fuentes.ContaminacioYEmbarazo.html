@@ -11,7 +11,7 @@
 
 <meta name="author" content="Alvar Martínez e Iván Mamolar" />
 
-<meta name="date" content="2024-11-03" />
+<meta name="date" content="2024-11-04" />
 
 <title>Contaminación y muerte prenatal</title>
 
@@ -1482,7 +1482,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore"><strong>Contaminación y muerte
 prenatal</strong></h1>
 <h4 class="author">Alvar Martínez e Iván Mamolar</h4>
-<h4 class="date">2024-11-03</h4>
+<h4 class="date">2024-11-04</h4>
 
 </div>
 
@@ -1551,8 +1551,8 @@ library(tidyjson)</code></pre>
 <p>Una vez cargadas las librerías se pueden importar los datos.</p>
 <div id="importación-datos-csv" class="section level4">
 <h4>Importación datos CSV:</h4>
-<p>En nuestros archivos csv, es necesario especificar el tipo de
-codificación que tienen, para que R pueda leer correctamente los
+<p>En algunos de nuestros archivos csv, es necesario especificar el tipo
+de codificación que tienen, para que R pueda leer correctamente los
 caracteres especiales como <em>tildes</em> o <em>ñ</em>. En nuestro caso
 utilizan la codificacion <em>ISO 8859-1</em> que corresponde con el
 alfabeto español :</p>
@@ -1573,23 +1573,33 @@ PM10_media &lt;- read_delim(&quot;Input/DATA/media_anual_PM10.csv&quot;,
                         locale = locale(encoding = &quot;ISO-8859-1&quot;))
 
 RUIDO_media &lt;- read_delim(&quot;Input/DATA/poblacion_sufre_ruidos.csv&quot;, 
-                         delim = &quot;;&quot;, escape_double = FALSE, trim_ws = TRUE, 
-                         locale = locale(encoding = &quot;ISO-8859-1&quot;))</code></pre>
+                         delim = &quot;;&quot;, escape_double = FALSE, trim_ws = TRUE)</code></pre>
 </div>
-<div id="preaparación-datos-csv" class="section level4">
-<h4>Preaparación datos csv</h4>
-<p>Los datos en los arcvhivos csv estan distribuidos de tal forma que
+<div id="preparación-datos-csv" class="section level4">
+<h4>Preparación datos csv</h4>
+<p>Los datos en los archivos csv estan distribuidos de tal forma que
 puede dificultar su comprensión y manejo, por ello vamos a modificarlos
 y ordenarlos.</p>
-<p>El objetivo es conseguir que los años (periodo), que de forma
-predeterminada vienen en una única columna pasen a ser las columnas del
-dataframe y el nombre de las comunidades autónomas las filas. Además,
-eliminar aquellas columnas y filas que no son de nuestro interés</p>
-<pre class="r"><code>PM2_ccaa_media &lt;- PM2_media %&gt;%
+<p>El objetivo es conseguir que los años (<em>periodo</em>), que de
+forma predeterminada vienen en una única columna pasen a ser las
+columnas del dataframe y el nombre de las comunidades autónomas las
+filas. Además, eliminar aquellas columnas y filas que no son de nuestro
+interés.</p>
+<pre class="r"><code># Datos concentración anual PM 2.5
+
+PM2_ccaa_media &lt;- PM2_media %&gt;%
   pivot_wider(names_from = periodo,  
               values_from = Total)%&gt;% 
   select(-`Total Nacional`)%&gt;% #Eliminar columna Total Nacional
-  slice(-1)                    #Eliminar fila Total Nacional</code></pre>
+  slice(-1)                    #Eliminar fila Total Nacional
+
+# Datos concentración anual PM 10
+
+PM10_CCAA_media &lt;- PM10_media %&gt;%
+  pivot_wider(names_from = periodo,  
+              values_from = Total)%&gt;%
+  select(-`Total Nacional`)%&gt;%
+  slice(-1)   </code></pre>
 </div>
 <div id="importación-datos-json" class="section level4">
 <h4>Importación datos JSON:</h4>

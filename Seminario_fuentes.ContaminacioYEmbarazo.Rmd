@@ -62,7 +62,7 @@ Una vez cargadas las librerías se pueden importar los datos.
 
 #### Importación datos CSV:
 
-En nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. En nuestro caso utilizan la codificacion *ISO 8859-1* que corresponde con el alfabeto español :
+En algunos de nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. En nuestro caso utilizan la codificacion *ISO 8859-1* que corresponde con el alfabeto español :
 
 ```{r , eval = TRUE,message=FALSE}
 
@@ -83,23 +83,32 @@ PM10_media <- read_delim("Input/DATA/media_anual_PM10.csv",
                         locale = locale(encoding = "ISO-8859-1"))
 
 RUIDO_media <- read_delim("Input/DATA/poblacion_sufre_ruidos.csv", 
-                         delim = ";", escape_double = FALSE, trim_ws = TRUE, 
-                         locale = locale(encoding = "ISO-8859-1"))
+                         delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
 ```
 
-#### Preaparación datos csv
+#### Preparación datos csv
 
-Los datos en los arcvhivos csv estan distribuidos de tal forma que puede dificultar su comprensión y manejo, por ello vamos a modificarlos y ordenarlos.
+Los datos en los archivos csv estan distribuidos de tal forma que puede dificultar su comprensión y manejo, por ello vamos a modificarlos y ordenarlos.
 
-El objetivo es conseguir que los años (periodo), que de forma predeterminada vienen en una única columna pasen a ser las columnas del dataframe y el nombre de las comunidades autónomas las filas. Además, eliminar aquellas columnas y filas que no son de nuestro interés
+El objetivo es conseguir que los años (*periodo*), que de forma predeterminada vienen en una única columna pasen a ser las columnas del dataframe y el nombre de las comunidades autónomas las filas. Además, eliminar aquellas columnas y filas que no son de nuestro interés.
 
 ```{r , eval = TRUE,message=FALSE}
+# Datos concentración anual PM 2.5
+
 PM2_ccaa_media <- PM2_media %>%
   pivot_wider(names_from = periodo,  
               values_from = Total)%>% 
   select(-`Total Nacional`)%>% #Eliminar columna Total Nacional
   slice(-1)                    #Eliminar fila Total Nacional
+
+# Datos concentración anual PM 10
+
+PM10_CCAA_media <- PM10_media %>%
+  pivot_wider(names_from = periodo,  
+              values_from = Total)%>%
+  select(-`Total Nacional`)%>%
+  slice(-1)   
 
 ```
 
