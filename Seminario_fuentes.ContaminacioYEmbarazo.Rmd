@@ -95,20 +95,22 @@ El objetivo es conseguir que los años (*periodo*), que de forma predeterminada 
 
 ```{r , eval = TRUE,message=FALSE}
 # Datos concentración anual PM 2.5
-
 PM2_ccaa_media <- PM2_media %>%
-  pivot_wider(names_from = periodo,  
-              values_from = Total)%>% 
+  pivot_wider(names_from = periodo, values_from = Total)%>% 
   select(-`Total Nacional`)%>% #Eliminar columna Total Nacional
   slice(-1)                    #Eliminar fila Total Nacional
 
 # Datos concentración anual PM 10
-
 PM10_CCAA_media <- PM10_media %>%
-  pivot_wider(names_from = periodo,  
-              values_from = Total)%>%
+  pivot_wider(names_from = periodo, values_from = Total)%>%
   select(-`Total Nacional`)%>%
-  slice(-1)   
+  slice(-1)
+
+#Datos población afectada por ruidos
+RUIDO_CCAA_media <- RUIDO_media %>%
+  pivot_wider(names_from = periodo, values_from = Total)%>%
+  select(-`Total Nacional`)%>%
+  slice(-1)  
 
 ```
 

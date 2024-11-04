@@ -1586,20 +1586,22 @@ columnas del dataframe y el nombre de las comunidades autónomas las
 filas. Además, eliminar aquellas columnas y filas que no son de nuestro
 interés.</p>
 <pre class="r"><code># Datos concentración anual PM 2.5
-
 PM2_ccaa_media &lt;- PM2_media %&gt;%
-  pivot_wider(names_from = periodo,  
-              values_from = Total)%&gt;% 
+  pivot_wider(names_from = periodo, values_from = Total)%&gt;% 
   select(-`Total Nacional`)%&gt;% #Eliminar columna Total Nacional
   slice(-1)                    #Eliminar fila Total Nacional
 
 # Datos concentración anual PM 10
-
 PM10_CCAA_media &lt;- PM10_media %&gt;%
-  pivot_wider(names_from = periodo,  
-              values_from = Total)%&gt;%
+  pivot_wider(names_from = periodo, values_from = Total)%&gt;%
   select(-`Total Nacional`)%&gt;%
-  slice(-1)   </code></pre>
+  slice(-1)
+
+#Datos población afectada por ruidos
+RUIDO_CCAA_media &lt;- RUIDO_media %&gt;%
+  pivot_wider(names_from = periodo, values_from = Total)%&gt;%
+  select(-`Total Nacional`)%&gt;%
+  slice(-1)  </code></pre>
 </div>
 <div id="importación-datos-json" class="section level4">
 <h4>Importación datos JSON:</h4>
