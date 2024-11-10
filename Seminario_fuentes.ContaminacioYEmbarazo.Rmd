@@ -6,6 +6,7 @@ output:
   html_document:
     toc: true
     toc_float: true
+    toc_depth: 5
 ---
 <style>
 body {
@@ -34,14 +35,14 @@ El objetivo principal es demostrar si la contaminación del aire y la exposició
 
   - Analizar la concentración de PM 2.5 y PM 10 en el aire por comunidad autónoma.
   - Estudiar la relación entre la calidad del aire y mortalidad prenatal.
-  - Analizar el porcentaje de población afectada por exceso de ruido en cada CCAA.
+  - Analizar el porcentaje de población afectada por exceso de ruido en cada comunidad autónoma.
   - Estudiar la relación entre el exceso de ruido y mortalidad prenatal.
 
 
 
 ## Metodología
 
-Los datos que vamos a utilizar han sido encontrados en la página oficial del Instituto Nacional de Estadística (INE) en el que se pueden encontrar una gran catidad de datos de diferentes formatos como XLS, csv, JSON ... En nuestro caso los datos sobre mortalidad prenatal y contaminación son de fromato csv y JSON y se encuentran en la carpeta `DATA` dentro de la carpeta `Input` del repositorio.
+Los datos que vamos a utilizar han sido encontrados en la página oficial del Instituto Nacional de Estadística (INE) en el que se pueden encontrar una gran cantidad de datos de diferentes formatos como XLS, csv, JSON ... En nuestro caso los datos sobre mortalidad prenatal y contaminación son de fromato csv y JSON y se encuentran en la carpeta `DATA` dentro de la carpeta `Input` del repositorio.
 
 Para poder utilizar estos conjuntos de datos son necesarios importarlos, para ello utilizaremos las siguientes librerías:
 
@@ -117,18 +118,85 @@ RUIDO_CCAA_media <- RUIDO_media %>%
 
 #### Importación datos JSON:
 
+```{r , eval = TRUE,message=FALSE}
 
+mort_prenatal <- fromJSON(file = "INPUT/DATA/mortalidad_prenatal_total.json")
 
-```{r cars}
-summary(cars)
+mort_prenatal %>% 
+  spread_all()
+
 ```
 
-## Including Plots
+#### Preparación archivos .json
 
-You can also embed plots, for example:
+Una vez que hemos importado el archivo json, analizamos los tipos de los atributos que lo forman para quedarnos con aquellos de tipo *array* que son  los que contienen la información que queremos:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r , eval = TRUE,message=FALSE}
+
+mort_prenatal %>% 
+  gather_object %>% 
+  json_types %>% 
+  count(name, type)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Analizamos en profundidad el contenido de cada array y obtenemos lo siguiente:
+
+- *Array Data*: se encuentran los valores de todos los años y sus respectivos valores de tasa de mortalidad prenatal
+
+```{r , eval = TRUE,message=FALSE}
+
+#VALORES DE LOS AÑOS A PARTIR DE 2004 Y VALORES MORTALIDAD
+mort_valores_prenatal <-
+  mort_prenatal %>%
+  enter_object(Data) %>%
+  gather_array %>%
+  spread_all %>%
+  select(Anyo, Valor, document.id)%>% 
+  filter(Anyo >=2004)
+
+```
+
+- *Array Metadata*: están los nombres de las comunidades autónomas y clasficación por sexos
+
+```{r , eval = TRUE,message=FALSE}
+
+mort2_CCAA_prenatal <- mort_prenatal %>%
+  enter_object(MetaData) %>%
+  gather_array %>%
+  spread_all %>%
+  select(Nombre, document.id, T3_Variable) %>%
+  filter(Nombre == "Andalucía" | Nombre == "Aragón" | Nombre == "Asturias, Principado de" |
+           Nombre == "Balears, Illes" | Nombre == "Canarias" | Nombre == "Cantabria" |
+           Nombre == "Castilla y León" | Nombre == "Castilla - La Mancha" | Nombre == "Cataluña" |
+           Nombre == "Comunitat Valenciana" | Nombre == "Extremadura" | Nombre == "Galicia" |
+           Nombre == "Madrid, Comunidad de" | Nombre == "Murcia, Región de" | Nombre == "Navarra, Comunidad Foral de" |
+           Nombre == "País Vasco" | Nombre == "Rioja, La" | Nombre == "Ceuta" | Nombre == "Melilla") 
+
+```
+
+Para obtener la tabla con todos los datos bien estructurados y organizados es necesario hacer join entre los datos de ambos arrays:
+
+```{r , eval = TRUE,message=FALSE}
+#Join:
+JOIN_mort_prenatal <-
+  mort_valores_prenatal %>% 
+  select(c("Anyo", "Valor", "document.id")) %>%
+  full_join(x = ., 
+            y = mort2_CCAA_prenatal %>% 
+              select(c("Nombre", "document.id")),
+            by = c("document.id") )
+
+```
+
+```{r , eval = TRUE,message=FALSE}
+
+mortalidad_prenatal <- JOIN_mort_prenatal %>%
+  slice(-1:-57)%>% #Eliminar datos Total Nacional
+  select(Nombre, Anyo, Valor)%>%
+  pivot_wider(names_from = Anyo, values_from = Valor) #Hacer que filas = CCAA y columnas = años
+
+```
+
+
+
