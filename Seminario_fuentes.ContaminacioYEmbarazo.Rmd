@@ -17,6 +17,8 @@ text-align: justify}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+* [Repositorio de GitHub](https://github.com/ivanmr200/seminario_fuentes) 
+
 ## Introducción
 
 
