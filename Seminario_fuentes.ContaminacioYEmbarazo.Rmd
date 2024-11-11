@@ -57,6 +57,9 @@ library(tidyverse)
 library(rjson)
 library(tidyjson)
 
+#Visualizacion resultados:
+library(DT)
+
 ```
 
 ### Importación archivos
@@ -103,17 +106,28 @@ PM2_ccaa_media <- PM2_media %>%
   select(-`Total Nacional`)%>% #Eliminar columna Total Nacional
   slice(-1)                    #Eliminar fila Total Nacional
 
+datatable(PM2_ccaa_media)
+```
+
+
+```{r , eval = TRUE,message=FALSE}
 # Datos concentración anual PM 10
 PM10_CCAA_media <- PM10_media %>%
   pivot_wider(names_from = periodo, values_from = Total)%>%
   select(-`Total Nacional`)%>%
   slice(-1)
+datatable(PM10_CCAA_media)
 
+```
+
+
+```{r , eval = TRUE,message=FALSE}
 #Datos población afectada por ruidos
 RUIDO_CCAA_media <- RUIDO_media %>%
   pivot_wider(names_from = periodo, values_from = Total)%>%
   select(-`Total Nacional`)%>%
   slice(-1)  
+datatable(RUIDO_CCAA_media)
 
 ```
 
@@ -215,16 +229,18 @@ mortalidad_prenatal <- JOIN_mort_prenatal %>%
   select(Nombre, Anyo, Valor)%>%
   pivot_wider(names_from = Anyo, values_from = Valor)%>% #Hacer que filas = CCAA y columnas = años
   slice(-1)#Eliminar datos Total Nacional
+datatable(mortalidad_prenatal)
+
 ```
 
 Idea primer objetivo: realizar un mapa en el que se vean los distintos datos usando los siguientes paquetes:
 
 ```{r , eval = TRUE,message=FALSE}
 
-library(mapSpain)
-library(sf)
-library(dplyr)
-library(ggplot2)
+#library(mapSpain)
+#library(sf)
+#library(dplyr)
+#library(ggplot2)
 
 ```
 
