@@ -11,7 +11,7 @@
 
 <meta name="author" content="Alvar Martínez e Iván Mamolar" />
 
-<meta name="date" content="2024-11-10" />
+<meta name="date" content="2024-11-11" />
 
 <title>Contaminación y muerte prenatal</title>
 
@@ -1482,7 +1482,7 @@ border-radius: 0px;
 <h1 class="title toc-ignore"><strong>Contaminación y muerte
 prenatal</strong></h1>
 <h4 class="author">Alvar Martínez e Iván Mamolar</h4>
-<h4 class="date">2024-11-10</h4>
+<h4 class="date">2024-11-11</h4>
 
 </div>
 
@@ -1647,6 +1647,20 @@ queremos:</p>
 ## 4 Nombre    string    60
 ## 5 T3_Escala string    60
 ## 6 T3_Unidad string    60</code></pre>
+<p>En nuestro caso queremos estudiar la mortalidad prentala tanto en
+hombres como en mujeres, para ello filtramos eliminando las columnas de
+hombres y mujeres, quedandonos con las de ambos sexos:</p>
+<pre class="r"><code>filter &lt;- c()
+for (i in 1:60){
+  filter &lt;- append(filter, mort_prenatal[[i]]$MetaData[[4]]$Nombre == &quot;Ambos sexos&quot;)
+}
+elim = 0
+for (i in 1:60){
+  if(!filter[i]){
+    mort_prenatal[[i-elim]] &lt;- NULL
+    elim &lt;- elim + 1
+  }
+}</code></pre>
 <p>Analizamos en profundidad el contenido de cada array y obtenemos lo
 siguiente:</p>
 <ul>
@@ -1687,16 +1701,17 @@ JOIN_mort_prenatal &lt;-
               select(c(&quot;Nombre&quot;, &quot;document.id&quot;)),
             by = c(&quot;document.id&quot;) )</code></pre>
 <pre class="r"><code>mortalidad_prenatal &lt;- JOIN_mort_prenatal %&gt;%
-  slice(-1:-57)%&gt;% #Eliminar datos Total Nacional
   select(Nombre, Anyo, Valor)%&gt;%
-  pivot_wider(names_from = Anyo, values_from = Valor) #Hacer que filas = CCAA y columnas = años</code></pre>
-<pre><code>## Warning: Values from `Valor` are not uniquely identified; output will contain list-cols.
-## • Use `values_fn = list` to suppress this warning.
-## • Use `values_fn = {summary_fun}` to summarise duplicates.
-## • Use the following dplyr code to identify duplicates.
-##   {data} |&gt;
-##   dplyr::summarise(n = dplyr::n(), .by = c(Nombre, Anyo)) |&gt;
-##   dplyr::filter(n &gt; 1L)</code></pre>
+  pivot_wider(names_from = Anyo, values_from = Valor)%&gt;% #Hacer que filas = CCAA y columnas = años
+  slice(-1)#Eliminar datos Total Nacional</code></pre>
+<p>Idea primer objetivo: realizar un mapa en el que se vean los
+distintos datos usando los siguientes paquetes:</p>
+<pre class="r"><code>library(mapSpain)
+library(sf)
+library(dplyr)
+library(ggplot2)</code></pre>
+<p>Resultado esperado:</p>
+<p><img src="data:image/png;base64,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Yzc926hicLPyxw1uuUe2idmikPRw2ilI7h56UrbI2jLB6eot41bITMuWQU3bwT0rtjxqGrb8s3Yrm3rvcqLzpZnUdGyRp/PcsbI9lB88tPny03a9in+p6dhO56y2z7eFZCvvMvAYf5o5y3hQsg0OgIh5G+njqr16JsEdGnKpdcptsuMR9kZailV3aEjAlt1tkpvfVvFmex39UhnZqvPK0Wvon+mqLSOb2r2NXkP/uNlS9W052WTBRa9fSNxsqUbSrGwTq3mwyctnkszbsrbSBKsXEg82uZewSvFa6gDbM1Cbdp+0akoZ4J41W5PUcFP3bDOxpe7mJlebiy1twS2HLWXBTd9GZ2RL50Y2SG2yNW4zy0foVIlkay58Wxhb3LAg73pVzaCnW+E2xc8HmbDaXGrqTQrtNZXto6ZpzqM2J5uzlQ5qv/3XxEeJNBmzpYvrtYW93maWsSZntUW5zV5Q1mRtpK7fZWVLuB7pMyub3m3yER1I3iHBXW6OYeBQk3kkdbqN1JK+fLZkY1MAjl83emdLolfPHStbdemMfF9p+BmYum6C3I6l2OxsD9U1ICvkXcxi8LfxecdYbDY2denM4wl0GxUxemB6Yuci6MDXmC8WNnXpTBmATXjWmxDtJfeBrzFfrI20xQpupMKbbdd0cMej5sm2OQkrtt581UNDVAc7gl5j1nixbYqgK0D2CG/evAlh2812BAiMD9tDaK29kWqBbMcVD7ZN6KRNSLT29/izHU/FudmCB9Hhjvgy2DobXYptijL+vdtwInE0FgEZs3V78yRZDlvElo6P/CyDTcRV2/jHyeaRxbIJE5vXkdelshnvoyc93WcHxiPKYti0zxQ+Q4VYCpvmpLBuO4VXran9qsGyNGt6UPG4dKZa7Dct0U1fniXbzwYZbWTZ7t74zeZ0bTQ52yHsgrnZGjfPYls8W91ihW+x7WT/N/6UynRrm+kXhsfKpqjEqNj0vaDhGoTorTwApmHsbF23Htu4qszT5APc6ujYG6mCGO5wCU0fZr7cZWls7f5Cn0SMW60ti2MzxH9krZ4etYKHmRg2T49lsHU01F1nRucT2EitbPWZvu26f8pPDM5N2bMwNnXpzD6bLwZnr4KueVwIW/2t5tKZp1ffx3xIx8LY6i5tu36f41PCjjrWkVSdlV9l+XC1o46b7enVj2Qbxs0WfFZ+CfFopLssH+V33CEbFLJBQfZJGbJhIRsUskEhGxSyQZnzPiBHnGLuFTjOkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aCQDQrZoJANCtmgkA0K2aD8H3VtlzCbESOnAAAAAElFTkSuQmCC" /></p>
 </div>
 </div>
 </div>

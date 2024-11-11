@@ -141,6 +141,24 @@ mort_prenatal %>%
   count(name, type)
 
 ```
+En nuestro caso queremos estudiar la mortalidad prentala tanto en hombres como en mujeres, para ello filtramos eliminando las columnas de hombres y mujeres, quedandonos con las de ambos sexos:
+
+
+```{r , eval = TRUE,message=FALSE}
+
+filter <- c()
+for (i in 1:60){
+  filter <- append(filter, mort_prenatal[[i]]$MetaData[[4]]$Nombre == "Ambos sexos")
+}
+elim = 0
+for (i in 1:60){
+  if(!filter[i]){
+    mort_prenatal[[i-elim]] <- NULL
+    elim <- elim + 1
+  }
+}
+
+```
 
 Analizamos en profundidad el contenido de cada array y obtenemos lo siguiente:
 
@@ -194,11 +212,23 @@ JOIN_mort_prenatal <-
 ```{r , eval = TRUE,message=FALSE}
 
 mortalidad_prenatal <- JOIN_mort_prenatal %>%
-  slice(-1:-57)%>% #Eliminar datos Total Nacional
   select(Nombre, Anyo, Valor)%>%
-  pivot_wider(names_from = Anyo, values_from = Valor) #Hacer que filas = CCAA y columnas = años
+  pivot_wider(names_from = Anyo, values_from = Valor)%>% #Hacer que filas = CCAA y columnas = años
+  slice(-1)#Eliminar datos Total Nacional
+```
+
+Idea primer objetivo: realizar un mapa en el que se vean los distintos datos usando los siguientes paquetes:
+
+```{r , eval = TRUE,message=FALSE}
+
+library(mapSpain)
+library(sf)
+library(dplyr)
+library(ggplot2)
 
 ```
 
+Resultado esperado:
 
+![](./Input/IMAGES/mapas_ejemplo.png)
 
