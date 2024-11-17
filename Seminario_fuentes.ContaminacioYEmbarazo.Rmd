@@ -119,14 +119,52 @@ PM10_CCAA_media <- PM10_media %>%
 datatable(PM10_CCAA_media)
 ```
 #Join de las dos tablas de contaminación anteriores.
-```{r , eval = TRUE,message=FALSE}
+```{r , eval = TRUE,message=FALSE, warning=FALSE}
+# Convertir las tablas de formato ancho a formato largo
+PM2_ccaa_media_long <- PM2_ccaa_media %>%
+  pivot_longer(
+    cols = c("2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015",
+             "2014", "2013", "2012", "2011", "2010", "2009", "2008", "2007",
+             "2006", "2005", "2004"),
+    names_to = "año",
+    values_to = "PM2_5"
+  )
 
-# Unir las tablas por "Comunidades y Ciudades Autónomas"
-calidad_aire <- PM2_ccaa_media %>%
-  inner_join(PM10_CCAA_media, by = c("Comunidades y Ciudades Autónomas"))
+PM10_CCAA_media_long <- PM10_CCAA_media %>%
+  pivot_longer(
+    cols = c("2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015",
+             "2014", "2013", "2012", "2011", "2010", "2009", "2008", "2007",
+             "2006", "2005", "2004"),
+    names_to = "año",
+    values_to = "PM10"
+  )
 
-# Visualizar la tabla combinada
-datatable(calidad_aire)
+
+# Limpiar los datos, eliminando valores no numéricos o incorrectos
+# Reemplazar comas por puntos decimales y convertir a numérico
+
+PM2_ccaa_media_long <- PM2_ccaa_media_long %>%
+  mutate(PM2_5 = as.numeric(gsub(",", ".", as.character(PM2_5))))
+
+PM10_CCAA_media_long <- PM10_CCAA_media_long %>%
+  mutate(PM10 = as.numeric(gsub(",", ".", as.character(PM10))))
+
+
+
+# Unir las tablas por "Comunidades y Ciudades Autónomas" y "año"
+calidad_aire <- PM2_ccaa_media_long %>%
+  inner_join(PM10_CCAA_media_long, by = c("Comunidades y Ciudades Autónomas", "año"))
+
+# Calcular la media para cada comunidad y año, ignorando los valores NA
+media_calidad_aire <- calidad_aire %>%
+  mutate(media_PM = rowMeans(select(., PM2_5, PM10), na.rm = TRUE)) %>% # Calcular media entre PM2.5 y PM10
+  group_by(`Comunidades y Ciudades Autónomas`, año) %>%
+  summarize(media_PM = mean(media_PM, na.rm = TRUE), .groups = "drop") # Media por grupo ignorando NA
+
+# Ver los resultados de la media
+datatable(media_calidad_aire)
+
+
 ```
 
 
