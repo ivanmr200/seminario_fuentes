@@ -117,7 +117,16 @@ PM10_CCAA_media <- PM10_media %>%
   select(-`Total Nacional`)%>%
   slice(-1)
 datatable(PM10_CCAA_media)
+```
+#Join de las dos tablas de contaminación anteriores.
+```{r , eval = TRUE,message=FALSE}
 
+# Unir las tablas por "Comunidades y Ciudades Autónomas"
+calidad_aire <- PM2_ccaa_media %>%
+  inner_join(PM10_CCAA_media, by = c("Comunidades y Ciudades Autónomas"))
+
+# Visualizar la tabla combinada
+datatable(calidad_aire)
 ```
 
 
