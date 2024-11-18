@@ -17,7 +17,28 @@ text-align: justify}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 * [Repositorio de GitHub](https://github.com/ivanmr200/seminario_fuentes) 
+
+```{r,message=FALSE, echo = FALSE}
+# Primero ejecutamos la función que permite leer dentro de la máquina qué paquete tenemos y compararla con la lista que le pasaremos a mano.
+Install_Course_Packages <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE) # Instala los paquetes
+   update.packages(ask = FALSE) # Actualiza los paquetes
+}
+
+
+# Listado de paquetes a ser utilizados
+Course_packages <- c("tidyverse", "rjson", "tidyjson", "readr", "DT", "gapminder", "gganimate"  )
+
+# Función que instalará/actualizará los paquetes del curso.
+Install_Course_Packages(Course_packages)
+
+# instalación de un paquete (manual) desde el repositorio en GitHub
+devtools::install_github("ropensci/dbparser")
+```
 
 ## Introducción
 
@@ -48,7 +69,7 @@ Los datos que vamos a utilizar han sido encontrados en la página oficial del In
 
 Para poder utilizar estos conjuntos de datos son necesarios importarlos, para ello utilizaremos las siguientes librerías:
 
-```{r , eval = TRUE,message=FALSE}
+```{r , eval = TRUE,message=FALSE, warning=FALSE}
 # Datos con formato .csv:
 library(readr)
 
@@ -59,6 +80,7 @@ library(tidyjson)
 
 #Visualizacion resultados:
 library(DT)
+library(gapminder)
 
 ```
 
@@ -118,7 +140,7 @@ PM10_CCAA_media <- PM10_media %>%
   slice(-1)
 datatable(PM10_CCAA_media)
 ```
-#Join de las dos tablas de contaminación anteriores.
+Join de las dos tablas de contaminación anteriores.
 ```{r , eval = TRUE,message=FALSE, warning=FALSE}
 # Convertir las tablas de formato ancho a formato largo
 PM2_ccaa_media_long <- PM2_ccaa_media %>%
@@ -277,6 +299,22 @@ mortalidad_prenatal <- JOIN_mort_prenatal %>%
   pivot_wider(names_from = Anyo, values_from = Valor)%>% #Hacer que filas = CCAA y columnas = años
   slice(-1)#Eliminar datos Total Nacional
 datatable(mortalidad_prenatal)
+
+```
+
+###Representar resultados
+
+```{r , eval = TRUE,message=FALSE}
+
+ggplot(media_calidad_aire, aes(gdpPercap, lifeExp, size = pop, colour = country)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  scale_colour_manual(values = country_colors) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  facet_wrap(~continent) +
+  labs(title = 'Year: {frame_time}', x = 'GDP per capita', y = 'life expectancy') +
+  transition_time(year) +
+  ease_aes('linear')
 
 ```
 
