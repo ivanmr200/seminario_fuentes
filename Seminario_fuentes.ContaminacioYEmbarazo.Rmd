@@ -296,7 +296,4 @@ Idea primer objetivo: realizar un mapa en el que se vean los distintos datos usa
 
 ```
 
-Resultado esperado:
-
-![](./Input/IMAGES/mapas_ejemplo.png)
 
