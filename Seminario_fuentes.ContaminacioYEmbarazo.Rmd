@@ -121,54 +121,6 @@ PM10_CCAA_media <- PM10_media %>%
   slice(-1)
 datatable(PM10_CCAA_media)
 ```
-Join de las dos tablas de contaminación anteriores.
-```{r , eval = TRUE,message=FALSE, warning=FALSE}
-# Convertir las tablas de formato ancho a formato largo
-PM2_ccaa_media_long <- PM2_ccaa_media %>%
-  pivot_longer(
-    cols = c("2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015",
-             "2014", "2013", "2012", "2011", "2010", "2009", "2008", "2007",
-             "2006", "2005", "2004"),
-    names_to = "año",
-    values_to = "PM2_5"
-  )
-
-PM10_CCAA_media_long <- PM10_CCAA_media %>%
-  pivot_longer(
-    cols = c("2022", "2021", "2020", "2019", "2018", "2017", "2016", "2015",
-             "2014", "2013", "2012", "2011", "2010", "2009", "2008", "2007",
-             "2006", "2005", "2004"),
-    names_to = "año",
-    values_to = "PM10"
-  )
-
-
-# Limpiar los datos, eliminando valores no numéricos o incorrectos
-# Reemplazar comas por puntos decimales y convertir a numérico
-
-PM2_ccaa_media_long <- PM2_ccaa_media_long %>%
-  mutate(PM2_5 = as.numeric(gsub(",", ".", as.character(PM2_5))))
-
-PM10_CCAA_media_long <- PM10_CCAA_media_long %>%
-  mutate(PM10 = as.numeric(gsub(",", ".", as.character(PM10))))
-
-
-
-# Unir las tablas por "Comunidades y Ciudades Autónomas" y "año"
-calidad_aire <- PM2_ccaa_media_long %>%
-  inner_join(PM10_CCAA_media_long, by = c("Comunidades y Ciudades Autónomas", "año"))
-
-# Calcular la media para cada comunidad y año, ignorando los valores NA
-media_calidad_aire <- calidad_aire %>%
-  mutate(media_PM = rowMeans(select(., PM2_5, PM10), na.rm = TRUE)) %>% # Calcular media entre PM2.5 y PM10
-  group_by(`Comunidades y Ciudades Autónomas`, año) %>%
-  summarize(media_PM = mean(media_PM, na.rm = TRUE), .groups = "drop") # Media por grupo ignorando NA
-
-# Ver los resultados de la media
-datatable(media_calidad_aire)
-
-
-```
 
 
 ```{r , eval = TRUE,message=FALSE}
@@ -278,8 +230,96 @@ JOIN_mort_prenatal <-
 mortalidad_prenatal <- JOIN_mort_prenatal %>%
   select(Nombre, Anyo, Valor)%>%
   pivot_wider(names_from = Anyo, values_from = Valor)%>% #Hacer que filas = CCAA y columnas = años
-  slice(-1)#Eliminar datos Total Nacional
+  slice(-1)%>%#Eliminar datos Total Nacional
+  pivot_longer(names_to = "Año", values_to = "Valor", cols = c("2022":"2004"))%>%
+  rename(`Comunidades Autonomas` = Nombre)
 datatable(mortalidad_prenatal)
+
+
+
+```
+## Realación contaminación/muerte.
+
+A continuación relacionaremos las dos tablas de contaminación, obteniendo un valor medio entre estas PM2.5 y PM10, para posteriormente hacer una unión con la mortalidad.
+
+```{r , eval = TRUE,message=FALSE, warning=FALSE}
+# Convertir las tablas de formato ancho a formato largo
+PM2_ccaa_media_long <- PM2_ccaa_media %>%
+  pivot_longer(
+    cols = c("2022":"2004"),
+    names_to = "Año",
+    values_to = "PM2_5"
+  )
+
+PM10_CCAA_media_long <- PM10_CCAA_media %>%
+  pivot_longer(
+    cols = c("2022":"2004"),
+    names_to = "Año",
+    values_to = "PM10"
+  )
+
+
+# Limpiar los datos, eliminando valores no numéricos o incorrectos
+# Reemplazar comas por puntos decimales y convertir a numérico
+
+PM2_ccaa_media_long <- PM2_ccaa_media_long %>%
+  mutate(PM2_5 = as.numeric(gsub(",", ".", as.character(PM2_5))))
+
+PM10_CCAA_media_long <- PM10_CCAA_media_long %>%
+  mutate(PM10 = as.numeric(gsub(",", ".", as.character(PM10))))
+
+
+
+# Unir las tablas por "Comunidades y Ciudades Autónomas" y "año"
+calidad_aire <- PM2_ccaa_media_long %>%
+  inner_join(PM10_CCAA_media_long, by = c("Comunidades y Ciudades Autónomas", "Año"))
+
+# Calcular la media para cada comunidad y año, ignorando los valores NA
+tabla_aire <- calidad_aire %>%
+  mutate(media_PM = rowMeans(select(., PM2_5, PM10), na.rm = TRUE)) %>% # Calcular media entre PM2.5 y PM10
+  group_by(`Comunidades y Ciudades Autónomas`, Año) %>%
+  summarize(media_PM = mean(media_PM, na.rm = TRUE), .groups = "drop") # Media por grupo ignorando NA
+
+media_calidad_aire <- 
+  tabla_aire %>%
+  mutate(`Comunidades Autonomas` = case_when(
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "01 Andalucía" ~ "Andalucia",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "02 Aragón" ~ "Aragon",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "03 Asturias. Principado de" ~ "Asturias",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "04 Balears. Illes" ~ "Baleares",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "05 Canarias" ~ "Canarias",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "06 Cantabria" ~ "Cantabria",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "07 Castilla y León" ~ "CyL",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "08 Castilla - La Mancha" ~ "Castilla la Mancha",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "09 Cataluña" ~ "Cataluña",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "10 Comunitat Valenciana" ~ "C.Valencia",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "11 Extremadura" ~ "Extremadura",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "12 Galicia" ~ "Galicia",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "13 Madrid. Comunidad de" ~ "Madrid",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "14 Murcia. Región de" ~ "Murcia",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "15 Navarra. Comunidad Foral de" ~ "Navarra",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "16 País Vasco" ~ "País Vasco",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "17 Rioja. La" ~ "La Rioja",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "18 Ceuta" ~ "Ceuta",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "19 Melilla" ~ "Melilla",
+    ))%>%
+  select(`Comunidades Autonomas`, everything())%>%
+  select(-`Comunidades y Ciudades Autónomas`)
+  
+
+# Ver los resultados de la media
+datatable(media_calidad_aire)
+
+
+```
+
+Ahora relacionaremos la tabla anterior con la mortalidad prental.
+```{r , eval = TRUE,message=FALSE}
+
+
+mortalidad_aire <- full_join(x = media_calidad_aire, y = mortalidad_prenatal, by = c("Comunidades Autonomas", "Año"))
+            
+datatable(mortalidad_aire)
 
 ```
 
