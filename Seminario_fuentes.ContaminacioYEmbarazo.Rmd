@@ -222,20 +222,43 @@ JOIN_mort_prenatal <-
             y = mort2_CCAA_prenatal %>% 
               select(c("Nombre", "document.id")),
             by = c("document.id") )
-
 ```
 
 ```{r , eval = TRUE,message=FALSE}
 
-mortalidad_prenatal <- JOIN_mort_prenatal %>%
+mortalidad <- JOIN_mort_prenatal %>%
   select(Nombre, Anyo, Valor)%>%
   pivot_wider(names_from = Anyo, values_from = Valor)%>% #Hacer que filas = CCAA y columnas = años
   slice(-1)%>%#Eliminar datos Total Nacional
-  pivot_longer(names_to = "Año", values_to = "Valor", cols = c("2022":"2004"))%>%
-  rename(`Comunidades Autonomas` = Nombre)
+  pivot_longer(names_to = "Año", values_to = "Valor", cols = c("2022":"2004"))
+
+mortalidad_prenatal <- 
+  mortalidad%>%
+  mutate(`Comunidades Autonomas` = case_when(
+    mortalidad$Nombre== "Andalucía" ~ "Andalucia",
+    mortalidad$Nombre== "Aragón" ~ "Aragon",
+    mortalidad$Nombre== "Asturias, Principado de" ~ "Asturias",
+    mortalidad$Nombre== "Balears, Illes" ~ "Baleares",
+    mortalidad$Nombre== "Canarias" ~ "Canarias",
+    mortalidad$Nombre== "Cantabria" ~ "Cantabria",
+    mortalidad$Nombre== "Castilla y León" ~ "CyL",
+    mortalidad$Nombre== "Castilla - La Mancha" ~ "Castilla la Mancha",
+    mortalidad$Nombre== "Cataluña" ~ "Cataluña",
+    mortalidad$Nombre== "Comunitat Valenciana" ~ "C.Valenciana",
+    mortalidad$Nombre== "Extremadura" ~ "Extremadura",
+    mortalidad$Nombre== "Galicia" ~ "Galicia",
+    mortalidad$Nombre== "Madrid, Comunidad de" ~ "Madrid",
+    mortalidad$Nombre== "Murcia, Región de" ~ "Murcia",
+    mortalidad$Nombre== "Navarra, Comunidad Foral de" ~ "Navarra",
+    mortalidad$Nombre== "País Vasco" ~ "País Vasco",
+    mortalidad$Nombre== "Rioja, La" ~ "La Rioja",
+    mortalidad$Nombre== "Ceuta" ~ "Ceuta",
+    mortalidad$Nombre== "Melilla" ~ "Melilla")) %>%
+  select(`Comunidades Autonomas`, everything())%>%
+  select(-Nombre)
+
+  
 datatable(mortalidad_prenatal)
-
-
 
 ```
 ## Realación contaminación/muerte.
@@ -285,21 +308,21 @@ media_calidad_aire <-
   mutate(`Comunidades Autonomas` = case_when(
     tabla_aire$`Comunidades y Ciudades Autónomas`== "01 Andalucía" ~ "Andalucia",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "02 Aragón" ~ "Aragon",
-    tabla_aire$`Comunidades y Ciudades Autónomas`== "03 Asturias. Principado de" ~ "Asturias",
-    tabla_aire$`Comunidades y Ciudades Autónomas`== "04 Balears. Illes" ~ "Baleares",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "03 Asturias, Principado de" ~ "Asturias",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "04 Balears, Illes" ~ "Baleares",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "05 Canarias" ~ "Canarias",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "06 Cantabria" ~ "Cantabria",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "07 Castilla y León" ~ "CyL",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "08 Castilla - La Mancha" ~ "Castilla la Mancha",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "09 Cataluña" ~ "Cataluña",
-    tabla_aire$`Comunidades y Ciudades Autónomas`== "10 Comunitat Valenciana" ~ "C.Valencia",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "10 Comunitat Valenciana" ~ "C.Valenciana",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "11 Extremadura" ~ "Extremadura",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "12 Galicia" ~ "Galicia",
-    tabla_aire$`Comunidades y Ciudades Autónomas`== "13 Madrid. Comunidad de" ~ "Madrid",
-    tabla_aire$`Comunidades y Ciudades Autónomas`== "14 Murcia. Región de" ~ "Murcia",
-    tabla_aire$`Comunidades y Ciudades Autónomas`== "15 Navarra. Comunidad Foral de" ~ "Navarra",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "13 Madrid, Comunidad de" ~ "Madrid",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "14 Murcia, Región de" ~ "Murcia",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "15 Navarra, Comunidad Foral de" ~ "Navarra",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "16 País Vasco" ~ "País Vasco",
-    tabla_aire$`Comunidades y Ciudades Autónomas`== "17 Rioja. La" ~ "La Rioja",
+    tabla_aire$`Comunidades y Ciudades Autónomas`== "17 Rioja, La" ~ "La Rioja",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "18 Ceuta" ~ "Ceuta",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "19 Melilla" ~ "Melilla",
     ))%>%
