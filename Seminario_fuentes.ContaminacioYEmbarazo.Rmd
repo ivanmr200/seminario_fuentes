@@ -62,6 +62,7 @@ library(tidyjson)
 #Visualizacion resultados:
 library(DT)
 library(gapminder)
+library(ggplot2)
 
 ```
 
@@ -369,7 +370,9 @@ Ahora relacionaremos la tabla anterior con la mortalidad prental.
 ```{r , eval = TRUE,message=FALSE}
 
 
-mortalidad_aire <- full_join(x = media_calidad_aire, y = mortalidad_prenatal, by = c("Comunidades Autonomas", "Año"))
+mortalidad_aire <-
+  full_join(x = media_calidad_aire, y = mortalidad_prenatal, by = c("Comunidades Autonomas", "Año")) %>%
+  rename(Mortalidad = Valor)
             
 datatable(mortalidad_aire)
 
@@ -412,14 +415,59 @@ mortalidad_prenatal_RUIDO <-
 
   
 
-mortalidad_RUIDO <- full_join(x = RUIDO_CCAA, y = mortalidad_prenatal_RUIDO, by = c("Comunidades Autonomas", "Año"))
+mortalidad_RUIDO <- 
+  full_join(x = RUIDO_CCAA, y = mortalidad_prenatal_RUIDO, by = c("Comunidades Autonomas", "Año"))%>%
+    rename("Ruido" = Valor.x) %>%
+  rename("Mortalidad" = Valor.y) 
             
-datatable(mortalidad_aire)
+datatable(mortalidad_RUIDO)
 
 
 ```
 
 ## Representar resultados
+
+Representaremos unas gráficas en las que se vea la evolución de la muerte prenatal en función de las dos variables planteadas; Ruido y Media_PM.
+
+```{r , eval = TRUE,message=FALSE}
+
+# Verificar si hay datos para la comunidad seleccionada
+cat("Comunidades autónomas disponibles:\n")
+print(unique(mortalidad_aire$"Comunidades Autonomas"))  # Lista las comunidades únicas
+
+# Pedir al usuario que introduzca una comunidad autónoma
+comunidad_seleccionada <- readline(prompt = "Introduce la comunidad autónoma que deseas analizar: ")
+
+# Filtrar los datos para la comunidad seleccionada
+datos_filtrados <- mortalidad_aire %>% 
+  filter("Comunidades Autonomas" == comunidad_seleccionada)
+
+# Filtrar los datos para la comunidad seleccionada
+datos_filtrados <- subset(mortalidad_aire, "Comunidades Autonomas" == comunidad_seleccionada)
+
+# Verificar si hay datos para la comunidad seleccionada
+if (nrow(datos_filtrados) == 0) {
+  cat("No hay datos disponibles para la comunidad autónoma seleccionada:", comunidad_seleccionada, "\n")
+} else {
+  # Crear la gráfica
+  grafica <- ggplot(datos_filtrados, aes(x = año)) +
+    geom_line(aes(y = media_PM, color = "Media PM2.5"), size = 1) +
+    geom_line(aes(y = Mortalidad, color = "Mortalidad"), size = 1) +
+    geom_point(aes(y = Mortalidad, color = "Mortalidad"), size = 2) +
+    labs(
+      title = paste("Evolución de Mortalidad y Contaminación en", comunidad_seleccionada),
+      x = "Año",
+      y = "Valores",
+      color = "Indicador"
+    ) +
+    theme_minimal()
+
+  # Mostrar la gráfica
+  print(grafica)
+}
+
+
+```
 
 Idea primer objetivo: realizar un mapa en el que se vean los distintos datos usando los siguientes paquetes:
 
