@@ -108,7 +108,10 @@ El objetivo es conseguir que los años (*periodo*), que de forma predeterminada 
 PM2_ccaa_media <- PM2_media %>%
   pivot_wider(names_from = periodo, values_from = Total)%>% 
   select(-`Total Nacional`)%>% #Eliminar columna Total Nacional
-  slice(-1)                    #Eliminar fila Total Nacional
+  slice(-1)%>%                    #Eliminar fila Total Nacional
+  pivot_longer(
+    cols = c("2022":"2004"),names_to = "Año",values_to = "PM2_5"
+  )                    
 
 datatable(PM2_ccaa_media)
 ```
@@ -119,7 +122,9 @@ datatable(PM2_ccaa_media)
 PM10_CCAA_media <- PM10_media %>%
   pivot_wider(names_from = periodo, values_from = Total)%>%
   select(-`Total Nacional`)%>%
-  slice(-1)
+  slice(-1)%>%
+  pivot_longer(names_to = "Año", values_to = "PM10", cols = c("2022":"2004"))
+
 datatable(PM10_CCAA_media)
 ```
 
@@ -132,9 +137,16 @@ RUIDO_CCAA_media <- RUIDO_media %>%
   slice(-1) %>%
   pivot_longer(names_to = "Año", values_to = "Valor", cols = c("2020":"2004"))
 
+```
+
+El nombre de las Comunidades Autónomas en los archivos csv aparecen con un índice que en nuestro caso vamos a eliminar ya que no lo utilizaremos y nos dificulta el tratamiento de las tablas.
+
+*(En las tablas referentes a contaminación, se cambiará más adelante)*En el caso del ruido: 
+
+```{r , eval = TRUE,message=FALSE}
 RUIDO_CCAA <- 
   RUIDO_CCAA_media %>%
-  mutate(`Comunidades Autonomas` = case_when(
+  mutate(Comunidades_Autonomas = case_when(
     RUIDO_CCAA_media$`Comunidades y Ciudades Autónomas`== "01 Andalucía" ~ "Andalucia",
     RUIDO_CCAA_media$`Comunidades y Ciudades Autónomas`== "02 Aragón" ~ "Aragon",
     RUIDO_CCAA_media$`Comunidades y Ciudades Autónomas`== "03 Asturias, Principado de" ~ "Asturias",
@@ -155,18 +167,16 @@ RUIDO_CCAA <-
     RUIDO_CCAA_media$`Comunidades y Ciudades Autónomas`== "18 Ceuta" ~ "Ceuta",
     RUIDO_CCAA_media$`Comunidades y Ciudades Autónomas`== "19 Melilla" ~ "Melilla",
     ))%>%
-  select(`Comunidades Autonomas`, everything())%>%
+  select(Comunidades_Autonomas, everything())%>%
   select(-`Comunidades y Ciudades Autónomas`)
 
 datatable(RUIDO_CCAA)
 
-
 ```
-
 
 #### Importación datos JSON:
 
-```{r , eval = TRUE,message=FALSE}
+```{r , echo = FALSE,message=FALSE, warning=FALSE}
 
 mort_prenatal <- fromJSON(file = "INPUT/DATA/mortalidad_prenatal_total.json")
 
@@ -187,7 +197,7 @@ mort_prenatal %>%
   count(name, type)
 
 ```
-En nuestro caso queremos estudiar la mortalidad prentala tanto en hombres como en mujeres, para ello filtramos eliminando las columnas de hombres y mujeres, quedandonos con las de ambos sexos:
+En nuestro caso queremos estudiar la mortalidad prenatal tanto en hombres como en mujeres, para ello filtramos eliminando las columnas de hombres y mujeres quedándonos con las de ambos sexos:
 
 
 ```{r , eval = TRUE,message=FALSE}
@@ -291,6 +301,7 @@ mortalidad_prenatal <-
 datatable(mortalidad_prenatal)
 
 ```
+
 ## Realación contaminación/muerte.
 
 A continuación relacionaremos las dos tablas de contaminación, obteniendo un valor medio entre estas PM2.5 y PM10, para posteriormente hacer una unión con la mortalidad.
