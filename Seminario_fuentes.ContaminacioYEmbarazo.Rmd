@@ -137,7 +137,7 @@ RUIDO_CCAA_media <- RUIDO_media %>%
   pivot_wider(names_from = periodo, values_from = Total)%>%
   select(-`Total Nacional`)%>%
   slice(-1) %>%
-  pivot_longer(names_to = "Año", values_to = "Valor", cols = c("2020":"2004"))
+  pivot_longer(names_to = "Año", values_to = "Ruido", cols = c("2020":"2004"))
 
 ```
 
@@ -274,7 +274,7 @@ mortalidad <- JOIN_mort_prenatal %>%
   select(Nombre, Anyo, Valor)%>%
   pivot_wider(names_from = Anyo, values_from = Valor)%>% #Hacer que filas = CCAA y columnas = años
   slice(-1)%>%#Eliminar datos Total Nacional
-  pivot_longer(names_to = "Año", values_to = "Valor", cols = c("2022":"2004"))
+  pivot_longer(names_to = "Año", values_to = "Mortalidad", cols = c("2022":"2004"))
 
 mortalidad_prenatal <- 
   mortalidad%>%
@@ -306,7 +306,10 @@ datatable(mortalidad_prenatal)
 
 ```
 
-## Realación contaminación/muerte.
+## Concentración contaminantes en el aire por CCAA
+
+
+## Relación contaminación - mortalidad prenatal.
 
 A continuación relacionaremos las dos tablas de contaminación, obteniendo un valor medio entre estas PM2.5 y PM10, para posteriormente hacer una unión con la mortalidad.
 
@@ -370,14 +373,13 @@ datatable(media_calidad_aire)
 
 ```
 
-
 Ahora relacionaremos la tabla anterior con la mortalidad prental.
 ```{r , eval = TRUE,message=FALSE}
 
 
 mortalidad_aire <-
-  full_join(x = media_calidad_aire, y = mortalidad_prenatal, by = c("Comunidades_Autonomas", "Año")) %>%
-  rename(Mortalidad = Valor)
+  full_join(x = media_calidad_aire, y = mortalidad_prenatal, by = c("Comunidades_Autonomas", "Año"))
+  
             
 datatable(mortalidad_aire)
 
@@ -407,60 +409,56 @@ p <- ggplot(mortalidad_aire, aes(x = media_PM, y = Mortalidad, colour = Comunida
 grafico_animado <- animate(p, nframes = 85, fps = 10)
 grafico_animado
 ```
-###### Conclusiones:
+#### Conclusiones:
+
+## Población afectada por ruido
+
+```{r , eval = TRUE,message=FALSE}
+# Suponiendo que tienes un dataframe 'datos' con las columnas 'Comunidad_Autonoma', 'Año' y 'Ruido'
+ggplot(RUIDO_CCAA, aes(x = factor(Año), y = Ruido, fill = Comunidades_Autonomas)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Evolución del Ruido por Comunidad Autónoma",
+    x = "Año",
+    y = "Valor de Ruido"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+```
+
+
+
+```{r , eval = TRUE,message=FALSE}
+ggplot(RUIDO_CCAA, aes(x = Año, y = Ruido, color = Comunidades_Autonomas)) +
+  geom_point() +
+  labs(title = "Ruido por Comunidad Autónoma y Año", 
+       x = "Año", 
+       y = "Valor de Ruido") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+```
 
 
 
 
+## Relación entre contaminación acústica - mortalidad prenatal
 
 
 A continuación haremos lo mismo pero en este caso, uniendo la tabla de mortalidad prenatal junto con la de ruido ambiente.
 ```{r , eval = TRUE,message=FALSE}
 
-mortalidad <- JOIN_mort_prenatal %>%
-  select(Nombre, Anyo, Valor)%>%
-  pivot_wider(names_from = Anyo, values_from = Valor)%>% #Hacer que filas = CCAA y columnas = años
-  slice(-1) %>% #Eliminar Las tres primeras filas que son las correspondientes al valor Total, a 2022 y a 2021.
-  pivot_longer(names_to = "Año", values_to = "Valor", cols = c("2020":"2004"))
-
-mortalidad_prenatal_RUIDO <- 
-  mortalidad%>%
-  mutate(Comunidades_Autonomas = case_when(
-    mortalidad$Nombre== "Andalucía" ~ "Andalucia",
-    mortalidad$Nombre== "Aragón" ~ "Aragon",
-    mortalidad$Nombre== "Asturias, Principado de" ~ "Asturias",
-    mortalidad$Nombre== "Balears, Illes" ~ "Baleares",
-    mortalidad$Nombre== "Canarias" ~ "Canarias",
-    mortalidad$Nombre== "Cantabria" ~ "Cantabria",
-    mortalidad$Nombre== "Castilla y León" ~ "CyL",
-    mortalidad$Nombre== "Castilla - La Mancha" ~ "Castilla la Mancha",
-    mortalidad$Nombre== "Cataluña" ~ "Cataluña",
-    mortalidad$Nombre== "Comunitat Valenciana" ~ "C.Valenciana",
-    mortalidad$Nombre== "Extremadura" ~ "Extremadura",
-    mortalidad$Nombre== "Galicia" ~ "Galicia",
-    mortalidad$Nombre== "Madrid, Comunidad de" ~ "Madrid",
-    mortalidad$Nombre== "Murcia, Región de" ~ "Murcia",
-    mortalidad$Nombre== "Navarra, Comunidad Foral de" ~ "Navarra",
-    mortalidad$Nombre== "País Vasco" ~ "País Vasco",
-    mortalidad$Nombre== "Rioja, La" ~ "La Rioja",
-    mortalidad$Nombre== "Ceuta" ~ "Ceuta",
-    mortalidad$Nombre== "Melilla" ~ "Melilla")) %>%
-  select(Comunidades_Autonomas, everything())%>%
-  select(-Nombre) %>%
-  select(-"2022") %>%
-  select(-"2021") 
-
-  
 
 mortalidad_RUIDO <- 
-  full_join(x = RUIDO_CCAA, y = mortalidad_prenatal_RUIDO, by = c("Comunidades_Autonomas", "Año"))%>%
-    rename("Ruido" = Valor.x) %>%
-  rename("Mortalidad" = Valor.y) 
+  full_join(x = RUIDO_CCAA, y = mortalidad_prenatal, by = c("Comunidades_Autonomas", "Año"))
             
 datatable(mortalidad_RUIDO)
 
 
 ```
+
+
 
 ## Representar resultados
 
