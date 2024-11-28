@@ -274,7 +274,7 @@ mortalidad <- JOIN_mort_prenatal %>%
 
 mortalidad_prenatal <- 
   mortalidad%>%
-  mutate(`Comunidades Autonomas` = case_when(
+  mutate(Comunidades_Autonomas = case_when(
     mortalidad$Nombre== "Andalucía" ~ "Andalucia",
     mortalidad$Nombre== "Aragón" ~ "Aragon",
     mortalidad$Nombre== "Asturias, Principado de" ~ "Asturias",
@@ -294,7 +294,7 @@ mortalidad_prenatal <-
     mortalidad$Nombre== "Rioja, La" ~ "La Rioja",
     mortalidad$Nombre== "Ceuta" ~ "Ceuta",
     mortalidad$Nombre== "Melilla" ~ "Melilla")) %>%
-  select(`Comunidades Autonomas`, everything())%>%
+  select(Comunidades_Autonomas, everything())%>%
   select(-Nombre)
 
   
@@ -307,36 +307,22 @@ datatable(mortalidad_prenatal)
 A continuación relacionaremos las dos tablas de contaminación, obteniendo un valor medio entre estas PM2.5 y PM10, para posteriormente hacer una unión con la mortalidad.
 
 ```{r , eval = TRUE,message=FALSE, warning=FALSE}
-# Convertir las tablas de formato ancho a formato largo
-PM2_ccaa_media_long <- PM2_ccaa_media %>%
-  pivot_longer(
-    cols = c("2022":"2004"),
-    names_to = "Año",
-    values_to = "PM2_5"
-  )
-
-PM10_CCAA_media_long <- PM10_CCAA_media %>%
-  pivot_longer(
-    cols = c("2022":"2004"),
-    names_to = "Año",
-    values_to = "PM10"
-  )
 
 
 # Limpiar los datos, eliminando valores no numéricos o incorrectos
 # Reemplazar comas por puntos decimales y convertir a numérico
 
-PM2_ccaa_media_long <- PM2_ccaa_media_long %>%
+PM2_ccaa_media <- PM2_ccaa_media %>%
   mutate(PM2_5 = as.numeric(gsub(",", ".", as.character(PM2_5))))
 
-PM10_CCAA_media_long <- PM10_CCAA_media_long %>%
+PM10_CCAA_media <- PM10_CCAA_media %>%
   mutate(PM10 = as.numeric(gsub(",", ".", as.character(PM10))))
 
 
 
 # Unir las tablas por "Comunidades y Ciudades Autónomas" y "año"
-calidad_aire <- PM2_ccaa_media_long %>%
-  inner_join(PM10_CCAA_media_long, by = c("Comunidades y Ciudades Autónomas", "Año"))
+calidad_aire <- PM2_ccaa_media %>%
+  inner_join(PM10_CCAA_media, by = c("Comunidades y Ciudades Autónomas", "Año"))
 
 # Calcular la media para cada comunidad y año, ignorando los valores NA
 tabla_aire <- calidad_aire %>%
@@ -346,7 +332,7 @@ tabla_aire <- calidad_aire %>%
 
 media_calidad_aire <- 
   tabla_aire %>%
-  mutate(`Comunidades Autonomas` = case_when(
+  mutate(Comunidades_Autonomas = case_when(
     tabla_aire$`Comunidades y Ciudades Autónomas`== "01 Andalucía" ~ "Andalucia",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "02 Aragón" ~ "Aragon",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "03 Asturias, Principado de" ~ "Asturias",
@@ -367,7 +353,7 @@ media_calidad_aire <-
     tabla_aire$`Comunidades y Ciudades Autónomas`== "18 Ceuta" ~ "Ceuta",
     tabla_aire$`Comunidades y Ciudades Autónomas`== "19 Melilla" ~ "Melilla",
     ))%>%
-  select(`Comunidades Autonomas`, everything())%>%
+  select(Comunidades_Autonomas, everything())%>%
   select(-`Comunidades y Ciudades Autónomas`)
   
 
@@ -382,7 +368,7 @@ Ahora relacionaremos la tabla anterior con la mortalidad prental.
 
 
 mortalidad_aire <-
-  full_join(x = media_calidad_aire, y = mortalidad_prenatal, by = c("Comunidades Autonomas", "Año")) %>%
+  full_join(x = media_calidad_aire, y = mortalidad_prenatal, by = c("Comunidades_Autonomas", "Año")) %>%
   rename(Mortalidad = Valor)
             
 datatable(mortalidad_aire)
@@ -399,7 +385,7 @@ mortalidad <- JOIN_mort_prenatal %>%
 
 mortalidad_prenatal_RUIDO <- 
   mortalidad%>%
-  mutate(`Comunidades Autonomas` = case_when(
+  mutate(Comunidades_Autonomas = case_when(
     mortalidad$Nombre== "Andalucía" ~ "Andalucia",
     mortalidad$Nombre== "Aragón" ~ "Aragon",
     mortalidad$Nombre== "Asturias, Principado de" ~ "Asturias",
@@ -419,7 +405,7 @@ mortalidad_prenatal_RUIDO <-
     mortalidad$Nombre== "Rioja, La" ~ "La Rioja",
     mortalidad$Nombre== "Ceuta" ~ "Ceuta",
     mortalidad$Nombre== "Melilla" ~ "Melilla")) %>%
-  select(`Comunidades Autonomas`, everything())%>%
+  select(Comunidades_Autonomas, everything())%>%
   select(-Nombre) %>%
   select(-"2022") %>%
   select(-"2021") 
@@ -427,7 +413,7 @@ mortalidad_prenatal_RUIDO <-
   
 
 mortalidad_RUIDO <- 
-  full_join(x = RUIDO_CCAA, y = mortalidad_prenatal_RUIDO, by = c("Comunidades Autonomas", "Año"))%>%
+  full_join(x = RUIDO_CCAA, y = mortalidad_prenatal_RUIDO, by = c("Comunidades_Autonomas", "Año"))%>%
     rename("Ruido" = Valor.x) %>%
   rename("Mortalidad" = Valor.y) 
             
