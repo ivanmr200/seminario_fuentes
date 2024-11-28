@@ -143,7 +143,9 @@ RUIDO_CCAA_media <- RUIDO_media %>%
 
 El nombre de las Comunidades Autónomas en los archivos csv aparecen con un índice que en nuestro caso vamos a eliminar ya que no lo utilizaremos y nos dificulta el tratamiento de las tablas.
 
-*(En las tablas referentes a contaminación, se cambiará más adelante)*En el caso del ruido: 
+*(En las tablas referentes a contaminación, se cambiará más adelante)*
+
+En el caso del ruido: 
 
 ```{r , eval = TRUE,message=FALSE}
 RUIDO_CCAA <- 
@@ -331,7 +333,10 @@ tabla_aire <- calidad_aire %>%
   mutate(media_PM = rowMeans(select(., PM2_5, PM10), na.rm = TRUE)) %>% # Calcular media entre PM2.5 y PM10
   group_by(`Comunidades y Ciudades Autónomas`, Año) %>%
   summarize(media_PM = mean(media_PM, na.rm = TRUE), .groups = "drop") # Media por grupo ignorando NA
+```
 
+Cambio de nombre de atributo *Comunidades y Ciudades Autónomas*
+```{r , eval = TRUE,message=FALSE, warning=FALSE}
 media_calidad_aire <- 
   tabla_aire %>%
   mutate(Comunidades_Autonomas = case_when(
