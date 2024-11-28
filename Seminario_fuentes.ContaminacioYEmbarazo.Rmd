@@ -61,8 +61,10 @@ library(tidyjson)
 
 #Visualizacion resultados:
 library(DT)
-library(gapminder)
 library(ggplot2)
+library(gifski)
+library(ggplot2)
+library(gganimate)
 
 ```
 
@@ -363,6 +365,7 @@ datatable(media_calidad_aire)
 
 ```
 
+
 Ahora relacionaremos la tabla anterior con la mortalidad prental.
 ```{r , eval = TRUE,message=FALSE}
 
@@ -374,6 +377,38 @@ mortalidad_aire <-
 datatable(mortalidad_aire)
 
 ```
+
+Una vez obtenida la tabla con los datos de concentración media de PM y de mortalidad prenatal por año y comunidad autónomas podemos ver si existe alguna relación.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Asegurar que Año sea numérico
+mortalidad_aire$Año <- as.integer(mortalidad_aire$Año)
+
+p <- ggplot(mortalidad_aire, aes(x = media_PM, y = Mortalidad, colour = Comunidades_Autonomas)) +
+  geom_point(aes(colour = factor(Comunidades_Autonomas)),alpha = 0.7, size = 4, show.legend = TRUE) +  
+  scale_color_viridis_d() +
+  facet_wrap(~ Comunidades_Autonomas) +
+  labs(
+    title = 'Año: {frame_time}',
+    x = 'Concentración media de PM (µg/m³)',
+    y = 'Mortalidad prenatal (por mil)',
+    color = "Comunidad Autónoma"
+  ) +
+  theme_minimal() +
+  transition_time(Año) +
+  ease_aes('linear')
+
+grafico_animado <- animate(p, nframes = 85, fps = 10)
+grafico_animado
+```
+###### Conclusiones:
+
+
+
+
+
+
 A continuación haremos lo mismo pero en este caso, uniendo la tabla de mortalidad prenatal junto con la de ruido ambiente.
 ```{r , eval = TRUE,message=FALSE}
 
