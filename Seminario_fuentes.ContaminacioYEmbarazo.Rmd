@@ -141,7 +141,7 @@ RUIDO_CCAA_media <- RUIDO_media %>%
   pivot_wider(names_from = periodo, values_from = Total)%>%
   select(-`Total Nacional`)%>%
   slice(-1) %>%
-  pivot_longer(names_to = "Año", values_to = "Ruido", cols = c("2020":"2004"))
+  pivot_longer(names_to = "Año", values_to = "Ruido_dec", cols = c("2020":"2004"))
 
 ```
 
@@ -175,8 +175,10 @@ RUIDO_CCAA <-
     RUIDO_CCAA_media$`Comunidades y Ciudades Autónomas`== "18 Ceuta" ~ "Ceuta",
     RUIDO_CCAA_media$`Comunidades y Ciudades Autónomas`== "19 Melilla" ~ "Melilla",
     ))%>%
+  mutate(Ruido = Ruido_dec/10)%>%
   select(Comunidades_Autonomas, everything())%>%
-  select(-`Comunidades y Ciudades Autónomas`)
+  select(-`Comunidades y Ciudades Autónomas`)%>%
+  select(-Ruido_dec)
 
 datatable(RUIDO_CCAA)
 
@@ -294,19 +296,18 @@ El objetivo principal es demostrar si existe alguna relación entre la mortalida
 Para ponernos en contexto, vamos a analizar el número de defunciones fetales por cada mil nacidos:
 
 ```{r , echo= FALSE, eval = TRUE,message=FALSE}
-grafico_mort <- ggplot(mortalidad, aes(x = Año, y = Mortalidad, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) + geom_line() +  
-  geom_point() +  
+grafico_mort <- ggplot(mortalidad, aes(x = Año, y = Mortalidad, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) + 
+  geom_line(aes(x = Año, y = Mortalidad, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) +  
+  geom_point(aes(x = Año, y = Mortalidad, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) +  
   labs(
     title = "Mortalidad Prenatal por Comunidad Autónoma",
     x = "Año",
     y = "Mortalidad Infantil (por 1,000 nacidos vivos)",
-    color = "Comunidad Autónoma"
-  ) +
-  theme_minimal()
+    color = "Comunidad Autónoma") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
 
-grafico_interactivo_mort <- ggplotly(grafico_mort)
-
-grafico_interactivo_mort
+ggplotly(grafico_mort)
 ```
 
 
@@ -381,7 +382,8 @@ datatable(media_calidad_aire)
 
 
 ```
-Podemos visualizar la evolución de la concentración de particulas en el aire:
+A partir de la tabla anterior, se puede visualizar la evolución de la concentración de particulas en el aire, sieendo las comuniades autónomas coloreadas con un color más escuro las que mayor concentración de PM tienen:
+
 ```{r , echo = FALSE, eval = TRUE,message=FALSE, warning=FALSE}
 library(dplyr)
 library(ggplot2)
@@ -434,6 +436,22 @@ grafico_animado_contaminacion <- animate(grafico_animado, nframes = 85, fps = 4)
 # Renderiza la animación
 grafico_animado_contaminacion
 ```
+En el siguiente gráfico se muestra la misma información pero de una forma fija y puede ayudar a ver mejor las diferencias entre las comunidades autónomas
+
+```{r ,echo = FALSE, eval = TRUE,message=FALSE}
+graf_PM <- ggplot(media_calidad_aire, aes(x = Año, y = media_PM, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) +
+  geom_point(aes(x = Año, y = media_PM, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) +
+  geom_line(aes(x = Año, y = media_PM, color = Comunidades_Autonomas, group = Comunidades_Autonomas))+
+  labs(title = "Concentración PM en el aire por Comunidad Autónoma y Año", 
+       x = "Año", 
+       y = "Media PM",
+       color = "CCAA") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+ggplotly(graf_PM)
+
+```
 
 
 
@@ -441,8 +459,7 @@ grafico_animado_contaminacion
 
 
 
-
-#### - **Relación contaminación - mortalidad prenatal**
+#### - **Relación contaminación/mortalidad prenatal**
 
 Ahora relacionaremos la tabla anterior con la mortalidad prental.
 
@@ -458,7 +475,7 @@ datatable(mortalidad_aire)
 
 Una vez obtenida la tabla con los datos de concentración media de PM y de mortalidad prenatal por año y comunidad autónomas podemos ver si existe alguna relación.
 
-```{r, echo = FALSE, message=FALSE, warning=FALSE}
+```{r, echo = FALSE, message=FALSE, warning=FALSE, warning=FALSE}
 
 # Asegurar que Año sea numérico
 mortalidad_aire$Año <- as.integer(mortalidad_aire$Año)
@@ -480,7 +497,290 @@ p <- ggplot(mortalidad_aire, aes(x = media_PM, y = Mortalidad, colour = Comunida
 grafico_animado <- animate(p, nframes = 85, fps = 10)
 grafico_animado
 ```
-#### Conclusiones:
+
+Para poder realizar un analisis más concreto de cada comunidad se pueden seleccionar las distintas pestañas
+
+#### Selecciona Comunidad Autónoma{.tabset .tabset-fade .tabset-pills .unnumbered}
+##### Andalucía
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_and <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Andalucía")
+  
+ggplot(data_and, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Andalucía",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Aragón
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_arg <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Aragón")
+
+ggplot(data_arg, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Aragón",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Baleares
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_bal <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Balears, Illes")
+
+ggplot(data_bal, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en I.Baleares",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Canarias
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_can <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Canarias")
+
+ggplot(data_can, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Canarias",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Cantabria
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_cant <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Cantabria")
+
+ggplot(data_cant, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Cantabria",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Castilla y León
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+# Filtrar solo los datos de Castilla y León
+data_cyl <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Castilla y León")
+  
+
+# Crear gráfico de dispersión para Castilla y León
+ggplot(data_cyl, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Castilla y León",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Castilla - La Mancha
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_clm <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Castilla - La Mancha")
+  
+ggplot(data_clm, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Castilla - La Mancha",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Cataluña
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_ctl <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Cataluña")
+  
+ggplot(data_ctl, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Cataluña",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Comunitat Valenciana
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_vlc <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Comunitat Valenciana")
+  
+ggplot(data_vlc, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Comunitat Valenciana",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Extremadura
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_ext <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Extremadura")
+  
+ggplot(data_ext, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Extremadura",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Galicia
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_gal <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Galicia")
+  
+ggplot(data_gal, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Galicia",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Madrid
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_mad <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Madrid, Comunidad de")
+  
+ggplot(data_mad, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Madrid",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Murcia
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_mur <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Murcia, Región de")
+  
+ggplot(data_mur, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Murcia",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Navarra
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_nav <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Navarra, Comunidad Foral de")
+  
+ggplot(data_nav, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Navarra",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Pais Vasco
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_pv <- mortalidad_aire %>% filter(Comunidades_Autonomas == "País Vasco")
+  
+ggplot(data_pv, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Pais Vasco",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### La Rioja
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_rioj <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Rioja, La")
+  
+ggplot(data_rioj, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en La Rioja",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Ceuta
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_ceu <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Ceuta")
+  
+ggplot(data_ceu, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Ceuta",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Melilla
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_mel <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Melilla")
+  
+ggplot(data_mel, aes(x = media_PM, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Melilla",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+
+
+###### Conclusiones:
 
 ### **Relación con contaminantes acústicos**
 
@@ -488,6 +788,8 @@ En este apartado se estudiará la evolución de la población afectada por ruido
 
 
 #### - **Población afectada por ruido**
+
+El siguiente grafico muestra la evolución de la población afectada por ruido externo en cada comunidad autonoma.
 
 ```{r , echo = FALSE, eval = TRUE,message=FALSE, warning=FALSE}
 library(dplyr)
@@ -542,47 +844,24 @@ grafico_animado_ruido <- animate(grafico_animado, nframes = 85, fps = 3)
 grafico_animado_ruido
 ```
 
-```{r , eval = TRUE,message=FALSE}
-# Suponiendo que tienes un dataframe 'datos' con las columnas 'Comunidad_Autonoma', 'Año' y 'Ruido'
-ggplot(RUIDO_CCAA, aes(x = factor(Año), y = Ruido, fill = Comunidades_Autonomas)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  labs(
-    title = "Evolución del Ruido por Comunidad Autónoma",
-    x = "Año",
-    y = "Valor de Ruido"
-  ) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
 
-```
-
-
-
-```{r , eval = TRUE,message=FALSE}
-ggplot(RUIDO_CCAA, aes(x = Año, y = Ruido, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) +
+```{r ,echo = FALSE, eval = TRUE,message=FALSE, warning=FALSE}
+graf_ru <- ggplot(RUIDO_CCAA, aes(x = Año, y = Ruido, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) +
   geom_point() +
   geom_line()+
-  labs(title = "Ruido por Comunidad Autónoma y Año", 
+  labs(title = "Población afectada por ruido por Comunidad Autónoma y Año", 
        x = "Año", 
-       y = "Valor de Ruido") +
+       y = "Ruido (%)",
+       color = "CCAA") +
   theme_minimal() +
   theme(legend.position = "bottom")
 
-```
-```{r , eval = TRUE,message=FALSE}
-ggplot(RUIDO_CCAA, aes(x = Año, y = Ruido, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) +
-  geom_line() +  # Trazar las líneas
-  geom_point() +  # Añadir puntos en los datos
-  labs(
-    title = "Mortalidad Infantil por Comunidad Autónoma",
-    x = "Año",
-    y = "Mortalidad Infantil (por 1,000 nacidos vivos)",
-    color = "Comunidad Autónoma"
-  ) +
-  theme_minimal()
+ggplotly(graf_ru)
+
 ```
 
-#### - **Relación entre ruido - mortalidad prenatal**
+
+#### - **Relación entre ruido/mortalidad prenatal**
 
 
 A continuación haremos lo mismo pero en este caso, uniendo la tabla de mortalidad prenatal junto con la de ruido ambiente.
@@ -620,59 +899,285 @@ grafico_animado_ruido
 ```
 
 
-## Representar resultados
-
-Representaremos unas gráficas en las que se vea la evolución de la muerte prenatal en función de las dos variables planteadas; Ruido y Media_PM.
-
-```{r , eval = TRUE,message=FALSE}
-
-# Verificar si hay datos para la comunidad seleccionada
-cat("Comunidades autónomas disponibles:\n")
-print(unique(mortalidad_aire$"Comunidades Autonomas"))  # Lista las comunidades únicas
-
-# Pedir al usuario que introduzca una comunidad autónoma
-comunidad_seleccionada <- readline(prompt = "Introduce la comunidad autónoma que deseas analizar: ")
-
-# Filtrar los datos para la comunidad seleccionada
-datos_filtrados <- mortalidad_aire %>% 
-  filter("Comunidades Autonomas" == comunidad_seleccionada)
-
-# Filtrar los datos para la comunidad seleccionada
-datos_filtrados <- subset(mortalidad_aire, "Comunidades Autonomas" == comunidad_seleccionada)
-
-# Verificar si hay datos para la comunidad seleccionada
-if (nrow(datos_filtrados) == 0) {
-  cat("No hay datos disponibles para la comunidad autónoma seleccionada:", comunidad_seleccionada, "\n")
-} else {
-  # Crear la gráfica
-  grafica <- ggplot(datos_filtrados, aes(x = año)) +
-    geom_line(aes(y = media_PM, color = "Media PM2.5"), size = 1) +
-    geom_line(aes(y = Mortalidad, color = "Mortalidad"), size = 1) +
-    geom_point(aes(y = Mortalidad, color = "Mortalidad"), size = 2) +
-    labs(
-      title = paste("Evolución de Mortalidad y Contaminación en", comunidad_seleccionada),
-      x = "Año",
-      y = "Valores",
-      color = "Indicador"
-    ) +
-    theme_minimal()
-
-  # Mostrar la gráfica
-  print(grafica)
-}
 
 
+Para poder realizar un analisis más concreto de cada comunidad se pueden seleccionar las distintas pestañas
+
+#### Selecciona Comunidad Autónoma{.tabset .tabset-fade .tabset-pills .unnumbered}
+##### Andalucía
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_and_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Andalucía")
+  
+ggplot(data_and_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Andalucía",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
 ```
 
-Idea primer objetivo: realizar un mapa en el que se vean los distintos datos usando los siguientes paquetes:
+##### Aragón
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
 
-```{r , eval = TRUE,message=FALSE}
+data_arg_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Aragón")
 
-#library(mapSpain)
-#library(sf)
-#library(dplyr)
-#library(ggplot2)
-
+ggplot(data_arg_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Aragón",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
 ```
+
+##### Baleares
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_bal_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Balears, Illes")
+
+ggplot(data_bal_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en I.Baleares",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Canarias
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_can_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Canarias")
+
+ggplot(data_can_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Canarias",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Cantabria
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_cant_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Cantabria")
+
+ggplot(data_cant_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Cantabria",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal",
+       color = "Año") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Castilla y León
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_cyl_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Castilla y León")
+
+ggplot(data_cyl_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Castilla y León",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Castilla - La Mancha
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_clm_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Castilla - La Mancha")
+  
+ggplot(data_clm_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Castilla - La Mancha",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Cataluña
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_ctl_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Cataluña")
+  
+ggplot(data_ctl_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Cataluña",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Comunitat Valenciana
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_vlc_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Comunitat Valenciana")
+  
+ggplot(data_vlc_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Comunitat Valenciana",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Extremadura
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_ext_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Extremadura")
+  
+ggplot(data_ext_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Extremadura",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Galicia
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_gal_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Galicia")
+  
+ggplot(data_gal_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en en Galicia",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Madrid
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_mad_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Madrid, Comunidad de")
+  
+ggplot(data_mad_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Madrid",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Murcia
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_mur_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Murcia, Región de")
+  
+ggplot(data_mur_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Murcia",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Navarra
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_nav_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Navarra, Comunidad Foral de")
+  
+ggplot(data_nav_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Navarra",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Pais Vasco
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_pv_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "País Vasco")
+  
+ggplot(data_pv_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Pais Vasco",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### La Rioja
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_rioj_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Rioja, La")
+  
+ggplot(data_rioj_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en La Rioja",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Ceuta
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_ceu_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Ceuta")
+  
+ggplot(data_ceu_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Ceuta",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
+##### Melilla
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+
+data_mel_ru <- mortalidad_RUIDO %>% filter(Comunidades_Autonomas == "Melilla")
+  
+ggplot(data_mel_ru, aes(x = Ruido, y = Mortalidad)) +
+  geom_point(aes(color = factor(Año))) +                
+  geom_smooth(method = "lm", color = "red", se = TRUE) + 
+  labs(title = "Relación entre la población afectada por ruido y la mortalidad prenatal en Melilla",
+       x = "Concentración de PM (µg/m³)",
+       y = "Tasa de mortalidad Prenatal") +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+```
+
 
 
