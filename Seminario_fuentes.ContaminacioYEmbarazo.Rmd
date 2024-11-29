@@ -63,8 +63,9 @@ library(tidyjson)
 library(DT)
 library(ggplot2)
 library(gifski)
-library(ggplot2)
 library(gganimate)
+library(plotly)
+
 
 ```
 
@@ -105,6 +106,8 @@ Los datos en los archivos csv estan distribuidos de tal forma que puede dificult
 
 El objetivo es conseguir que los años (*periodo*), que de forma predeterminada vienen en una única columna pasen a ser las columnas del dataframe y el nombre de las comunidades autónomas las filas. Además, eliminar aquellas columnas y filas que no son de nuestro interés.
 
+##### <u>Concentración PM 2.5</u>
+
 ```{r , eval = TRUE,message=FALSE}
 # Datos concentración anual PM 2.5
 PM2_ccaa_media <- PM2_media %>%
@@ -118,6 +121,7 @@ PM2_ccaa_media <- PM2_media %>%
 datatable(PM2_ccaa_media)
 ```
 
+##### <u>Concentración PM 10</u>
 
 ```{r , eval = TRUE,message=FALSE}
 # Datos concentración anual PM 10
@@ -129,7 +133,7 @@ PM10_CCAA_media <- PM10_media %>%
 
 datatable(PM10_CCAA_media)
 ```
-
+##### <u>Población afectada por ruido</u>
 
 ```{r , eval = TRUE,message=FALSE}
 #Datos población afectada por ruidos
@@ -268,6 +272,7 @@ JOIN_mort_prenatal <-
             by = c("document.id") )
 ```
 
+##### <u>Mortalidad fetal</u>
 ```{r , eval = TRUE,message=FALSE}
 
 mortalidad <- JOIN_mort_prenatal %>%
@@ -281,9 +286,41 @@ datatable(mortalidad)
 
 ```
 
-## **Concentración contaminantes en el aire por CCAA**
 
-A continuación relacionaremos las dos tablas de contaminación, obteniendo un valor medio entre estas PM2.5 y PM10, para posteriormente hacer una unión con la mortalidad.
+## **Mortalidad fetal tardía**
+
+El objetivo principal es demostrar si existe alguna relación entre la mortalidad fetal tardía o mortalidad prenatal con distintos tipos de contaminación del ambiente, ya sea por contaminación atmosférica (PM) o acústica (Ruido).
+
+Para ponernos en contexto, vamos a analizar el número de defunciones fetales por cada mil nacidos:
+
+```{r , echo= FALSE, eval = TRUE,message=FALSE}
+grafico_mort <- ggplot(mortalidad, aes(x = Año, y = Mortalidad, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) + geom_line() +  
+  geom_point() +  
+  labs(
+    title = "Mortalidad Prenatal por Comunidad Autónoma",
+    x = "Año",
+    y = "Mortalidad Infantil (por 1,000 nacidos vivos)",
+    color = "Comunidad Autónoma"
+  ) +
+  theme_minimal()
+
+grafico_interactivo_mort <- ggplotly(grafico_mort)
+
+grafico_interactivo_mort
+```
+
+
+
+
+
+
+### **Relación con contaminantes atmosféricos**
+
+En este apartado se estudiará la evolución de la concentración media de PM (2.5 y 10) en el aire a lo largo de los años en cada comunidad autónoma y su posible relación con el número de muertes fetales tardías.
+
+#### - **Concentración contaminantes en el aire por CCAA**
+
+A continuación relacionaremos las dos tablas de contaminación, obteniendo un valor medio entre estas PM2.5 y PM10, para posteriormente hacer la unión con la mortalidad.
 
 ```{r , eval = TRUE,message=FALSE, warning=FALSE}
 
@@ -405,16 +442,16 @@ grafico_animado_contaminacion
 
 
 
-## **Relación contaminación - mortalidad prenatal**
+#### - **Relación contaminación - mortalidad prenatal**
 
 Ahora relacionaremos la tabla anterior con la mortalidad prental.
+
 ```{r , eval = TRUE,message=FALSE}
 
-
 mortalidad_aire <-
-  full_join(x = media_calidad_aire, y = mortalidad, by = c("Comunidades_Autonomas", "Año"))
+  left_join(x = media_calidad_aire, y = mortalidad, 
+            by = c("Comunidades_Autonomas", "Año"))
   
-            
 datatable(mortalidad_aire)
 
 ```
@@ -445,7 +482,12 @@ grafico_animado
 ```
 #### Conclusiones:
 
-## **Población afectada por ruido**
+### **Relación con contaminantes acústicos**
+
+En este apartado se estudiará la evolución de la población afectada por ruidos externos a lo largo de los años en cada comunidad autónoma y su posible relación con el número de muertes fetales tardías.
+
+
+#### - **Población afectada por ruido**
 
 ```{r , echo = FALSE, eval = TRUE,message=FALSE, warning=FALSE}
 library(dplyr)
@@ -517,8 +559,9 @@ ggplot(RUIDO_CCAA, aes(x = factor(Año), y = Ruido, fill = Comunidades_Autonomas
 
 
 ```{r , eval = TRUE,message=FALSE}
-ggplot(RUIDO_CCAA, aes(x = Año, y = Ruido, color = Comunidades_Autonomas)) +
+ggplot(RUIDO_CCAA, aes(x = Año, y = Ruido, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) +
   geom_point() +
+  geom_line()+
   labs(title = "Ruido por Comunidad Autónoma y Año", 
        x = "Año", 
        y = "Valor de Ruido") +
@@ -526,11 +569,20 @@ ggplot(RUIDO_CCAA, aes(x = Año, y = Ruido, color = Comunidades_Autonomas)) +
   theme(legend.position = "bottom")
 
 ```
+```{r , eval = TRUE,message=FALSE}
+ggplot(RUIDO_CCAA, aes(x = Año, y = Ruido, color = Comunidades_Autonomas, group = Comunidades_Autonomas)) +
+  geom_line() +  # Trazar las líneas
+  geom_point() +  # Añadir puntos en los datos
+  labs(
+    title = "Mortalidad Infantil por Comunidad Autónoma",
+    x = "Año",
+    y = "Mortalidad Infantil (por 1,000 nacidos vivos)",
+    color = "Comunidad Autónoma"
+  ) +
+  theme_minimal()
+```
 
-
-
-
-## **Relación entre contaminación acústica - mortalidad prenatal**
+#### - **Relación entre ruido - mortalidad prenatal**
 
 
 A continuación haremos lo mismo pero en este caso, uniendo la tabla de mortalidad prenatal junto con la de ruido ambiente.
@@ -538,13 +590,34 @@ A continuación haremos lo mismo pero en este caso, uniendo la tabla de mortalid
 
 
 mortalidad_RUIDO <- 
-  full_join(x = RUIDO_CCAA, y = mortalidad, by = c("Comunidades_Autonomas", "Año"))
+  left_join(x = RUIDO_CCAA, y = mortalidad, by = c("Comunidades_Autonomas", "Año"))
             
 datatable(mortalidad_RUIDO)
 
 
 ```
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
 
+# Asegurar que Año sea numérico
+mortalidad_RUIDO$Año <- as.integer(mortalidad_RUIDO$Año)
+
+p <- ggplot(mortalidad_RUIDO, aes(x = Ruido, y = Mortalidad, colour = Comunidades_Autonomas)) +
+  geom_point(aes(colour = factor(Comunidades_Autonomas)),alpha = 0.7, size = 4, show.legend = TRUE) +  
+  scale_color_viridis_d() +
+  facet_wrap(~ Comunidades_Autonomas) +
+  labs(
+    title = 'Año: {frame_time}',
+    x = 'Población afectada por ruido (%)',
+    y = 'Mortalidad prenatal',
+    color = "Comunidad Autónoma"
+  ) +
+  theme_minimal() +
+  transition_time(Año) +
+  ease_aes('linear')
+
+grafico_animado_ruido <- animate(p, nframes = 85, fps = 10)
+grafico_animado_ruido
+```
 
 
 ## Representar resultados
