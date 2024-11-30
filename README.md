@@ -13,5 +13,22 @@ El objetivo principal es demostrar si la contaminación del aire y la exposició
   - Analizar el porcentaje de población afectada por exceso de ruido en cada CCAA.
   - Estudiar la relación entre el exceso de ruido y mortalidad prenatal.
 
+## Resultados
+
+ - Relación entre la calidad del aire y mortalidad prenatal:
+
+   <img src='./Input/IMAGES/gif_Pm_mort.gif' align="center" height="500" />
+   
+ - Relación entre el exceso de ruido y mortalidad prenatal:
+
+   <img src='./Input/IMAGES/gif_ruido_mort.gif' align="center" height="500" />
+
+
+## Conclusiones
+
+
+
+
+   
 ***
 Autores: Álvar Martínez e Iván Mamolar
