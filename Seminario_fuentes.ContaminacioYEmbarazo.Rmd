@@ -6,7 +6,7 @@ output:
   html_document:
     toc: true
     toc_float: true
-    toc_depth: 5
+    toc_depth: 4
 ---
 <style>
 body {
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## **Introducción**
 
 
-La **mortalidad prenatal** o **mortalidad fetal tardía** se refiere a aquellos bebés que fallecen pasadas las 28 semanas de embarazo (a partir del séptimo mes) y que no llegan a término.
+La **mortalidad prenatal** o **mortalidad fetal tardía** se refiere a aquellos bebés que fallecen pasadas las 28 semanas de embarazo (a partir del séptimo mes) y que no llegan a término (OMS).
 Las pricipales causas son las complicaciones que surgen durante el embarazo ya sean por infecciones como sífilis o VIH, otros tipos de anomalías maternas, como diabetes o hipertensión o anomalías durante el embarazo, o hábitos perjudiciales como el consumo de tabaco o el alcohol.
 
 Además de estos factores, las condiciones ambientales pueden tener un efecto negativo en el embarazo. Estudios sugieren que la presencia de contaminantes en el aire pueden causar complicaciones en el embarazo e incluso aumentar la probabilidad de partos prematuros, así como la exposición al ruido puede tener efectos adversos para el embarazo pudiendo llegar a afectar a la mortalidad prenatal. 
@@ -75,7 +75,7 @@ library(mapSpain)
 
 Una vez cargadas las librerías se pueden importar los datos. 
 
-#### Importación datos CSV:
+### Importación datos CSV:
 
 En algunos de nuestros archivos csv, es necesario especificar el tipo de codificación que tienen, para que R pueda leer correctamente los caracteres especiales como *tildes* o *ñ*. En nuestro caso utilizan la codificacion *ISO 8859-1* que corresponde con el alfabeto español :
 
@@ -102,13 +102,13 @@ RUIDO_media <- read_delim("Input/DATA/poblacion_sufre_ruidos.csv",
 
 ```
 
-#### Preparación datos csv
+### Preparación datos csv
 
 Los datos en los archivos csv estan distribuidos de tal forma que puede dificultar su comprensión y manejo, por ello vamos a modificarlos y ordenarlos.
 
 El objetivo es conseguir que los años (*periodo*), que de forma predeterminada vienen en una única columna pasen a ser las columnas del dataframe y el nombre de las comunidades autónomas las filas. Además, eliminar aquellas columnas y filas que no son de nuestro interés.
 
-##### <u>Concentración PM 2.5</u>
+#### <u>Concentración PM 2.5</u>
 
 ```{r , eval = TRUE,message=FALSE}
 # Datos concentración anual PM 2.5
@@ -123,7 +123,7 @@ PM2_ccaa_media <- PM2_media %>%
 datatable(PM2_ccaa_media)
 ```
 
-##### <u>Concentración PM 10</u>
+#### <u>Concentración PM 10</u>
 
 ```{r , eval = TRUE,message=FALSE}
 # Datos concentración anual PM 10
@@ -135,7 +135,7 @@ PM10_CCAA_media <- PM10_media %>%
 
 datatable(PM10_CCAA_media)
 ```
-##### <u>Población afectada por ruido</u>
+#### <u>Población afectada por ruido</u>
 
 ```{r , eval = TRUE,message=FALSE}
 #Datos población afectada por ruidos
@@ -186,7 +186,7 @@ datatable(RUIDO_CCAA)
 
 ```
 
-#### **Importación datos JSON:**
+### **Importación datos JSON:**
 
 ```{r , eval = TRUE,message=FALSE, warning=FALSE}
 
@@ -197,7 +197,7 @@ mort_prenatal %>%
 
 ```
 
-#### Preparación archivos .json
+### Preparación archivos .json
 
 Una vez que hemos importado el archivo json, analizamos los tipos de los atributos que lo forman para quedarnos con aquellos de tipo *array* que son  los que contienen la información que queremos:
 
@@ -276,7 +276,7 @@ JOIN_mort_prenatal <-
             by = c("document.id") )
 ```
 
-##### <u>Mortalidad fetal</u>
+#### <u>Mortalidad fetal</u>
 ```{r , eval = TRUE,message=FALSE}
 
 mortalidad <- JOIN_mort_prenatal %>%
@@ -313,9 +313,9 @@ ggplotly(grafico_mort)
 ```
 
 
-###### **Conclusiones**
+##### **Conclusiones**
 
-Se observa que hay una gran diferencia en la evolución de las tasas de mortalidad prenatal dependiendo de la Comunidad Autónoma, destancando grandes tasas en Ceuta, Melilla y La Rioja.
+Se observa que hay una gran diferencia en la evolución de las tasas de mortalidad prenatal dependiendo de la Comunidad Autónoma, destacando grandes tasas en Ceuta, Melilla y La Rioja.
 
 Las causas puede ser numerosas, ya sea por causas económicas, inaccesibilidad sanitaria o la calidad de la sanidad, entre otras. A partir de estos datos, vamos a tratar de demostrar si entre estas causas pueden estar la calidad del aire, analizando la concentración de particulas PM en suspensión, o la contaminación acústica
 
@@ -324,7 +324,7 @@ Las causas puede ser numerosas, ya sea por causas económicas, inaccesibilidad s
 
 En este apartado se estudiará la evolución de la concentración media de PM (2.5 y 10) en el aire a lo largo de los años en cada comunidad autónoma y su posible relación con el número de muertes fetales tardías.
 
-#### - **Concentración contaminantes en el aire por CCAA**
+#### · **Concentración contaminantes en el aire por CCAA**
 
 A continuación relacionaremos las dos tablas de contaminación con datos de particulas de tamaño 2.5 y 10, obteniendo un valor medio entre las partículas PM2.5 y PM10, para posteriormente hacer la unión con la mortalidad y analizar si existe alguna correlación entre ellas.
 
@@ -444,17 +444,18 @@ ggplotly(graf_PM)
 ```
 
 
-###### **Conclusiones**:
+##### **Conclusiones**:
 
 La concentración media de partículas en suspensión PM 2,5 y PM 10 parece seguir un comportamiento similar en todas las comunidades autónomas obteniendose unos valores similares en cada uno de ellos en estos últimos años.
 
-Sin embargo, si analizamos los primeros años desde 2004 hasta 2008, estos valores medios tienen valores muchos más altos, alcanzando el máximo en Aragón. Es notable como a partir del **2008** dichos valores descienden de forma drastica. 
+Sin embargo, si analizamos los primeros años desde 2004 hasta 2008, estos valores medios tienen valores muchos más altos, alcanzando el máximo en Aragón. Es notable como a partir del **2008** dichos valores descienden de forma drástica. 
+
 Investigando, hemos llegado a la conclusión de que esa bajada tan pronunciada es debido a la aprobación de la **Directiva 2008/50/CE**, con la que se impusieron regulaciones más estrictas para nuevos contaminantes, como son en este caso las particulas PM 2,5 y PM10, con el objetivo de mejorar la calidad del aire en la Unión Europea.
 
-Además cabe destacar que en regiones como Melilla, Ceuta, Murcia y Andalucía, los niveles de contaminación de PM no solo incluyen los datos de contaminanetes atmosféricos emitidos por los humanos, sino que también incluyen otro tipo de contaminante inevitable como es la nacionalmente conocida "calima" que proviene de África y trae consigo una gran cantidad de particulas (generalmente arena), que dependiendo de su tamaño podrían ser introducidas en la categoría de las PM. 
+Además cabe destacar que en regiones como Melilla, Ceuta, Murcia y Andalucía, los niveles de contaminación de PM no solo incluyen los datos de contaminantes atmosféricos emitidos por los humanos, sino que también incluyen otro tipo de contaminante inevitable como es la nacionalmente conocida **"calima"** que proviene de África y trae consigo una gran cantidad de particulas (generalmente arena), que dependiendo de su tamaño podrían ser introducidas en la categoría de las PM. 
 
 
-#### - **Relación contaminación/mortalidad prenatal**
+#### · **Relación contaminación/mortalidad prenatal**
 
 Ahora relacionaremos la tabla anterior con la tabla que contiene datos de mortalidad prenatal para poder estudiar su posible relación.
 
@@ -505,7 +506,7 @@ data_and <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Andalucía")
 ggplot(data_and, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Andalucía",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Andalucía",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal",
        color = "Año") +
@@ -521,7 +522,7 @@ data_arg <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Aragón")
 ggplot(data_arg, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Aragón",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Aragón",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal",
        color = "Año") +
@@ -537,7 +538,7 @@ data_bal <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Balears, Illes"
 ggplot(data_bal, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en I.Baleares",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en I.Baleares",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal",
        color = "Año") +
@@ -553,7 +554,7 @@ data_can <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Canarias")
 ggplot(data_can, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Canarias",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Canarias",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal",
        color = "Año") +
@@ -569,7 +570,7 @@ data_cant <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Cantabria")
 ggplot(data_cant, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Cantabria",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Cantabria",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal",
        color = "Año") +
@@ -587,7 +588,7 @@ data_cyl <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Castilla y Leó
 ggplot(data_cyl, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Castilla y León",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Castilla y León",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -602,7 +603,7 @@ data_clm <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Castilla - La M
 ggplot(data_clm, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Castilla - La Mancha",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Castilla - La Mancha",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -617,7 +618,7 @@ data_ctl <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Cataluña")
 ggplot(data_ctl, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Cataluña",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Cataluña",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -632,7 +633,7 @@ data_vlc <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Comunitat Valen
 ggplot(data_vlc, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Comunitat Valenciana",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Comunitat Valenciana",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -647,7 +648,7 @@ data_ext <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Extremadura")
 ggplot(data_ext, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Extremadura",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Extremadura",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -662,7 +663,7 @@ data_gal <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Galicia")
 ggplot(data_gal, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Galicia",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Galicia",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -677,7 +678,7 @@ data_mad <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Madrid, Comunid
 ggplot(data_mad, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Madrid",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Madrid",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -692,7 +693,7 @@ data_mur <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Murcia, Región
 ggplot(data_mur, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Murcia",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Murcia",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -707,7 +708,7 @@ data_nav <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Navarra, Comuni
 ggplot(data_nav, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Navarra",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Navarra",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -722,7 +723,7 @@ data_pv <- mortalidad_aire %>% filter(Comunidades_Autonomas == "País Vasco")
 ggplot(data_pv, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Pais Vasco",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Pais Vasco",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -737,7 +738,7 @@ data_rioj <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Rioja, La")
 ggplot(data_rioj, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en La Rioja",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en La Rioja",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -752,7 +753,7 @@ data_ceu <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Ceuta")
 ggplot(data_ceu, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Ceuta",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Ceuta",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -767,7 +768,7 @@ data_mel <- mortalidad_aire %>% filter(Comunidades_Autonomas == "Melilla")
 ggplot(data_mel, aes(x = media_PM, y = Mortalidad)) +
   geom_point(aes(color = factor(Año))) +                
   geom_smooth(method = "lm", color = "red", se = TRUE) + 
-  labs(title = "Relación entre la concentración de PM y la mortalidad infantil en Melilla",
+  labs(title = "Relación entre la concentración de PM y la mortalidad prenatal en Melilla",
        x = "Concentración de PM (µg/m³)",
        y = "Tasa de mortalidad Prenatal") +
   theme_minimal()+
@@ -776,7 +777,7 @@ ggplot(data_mel, aes(x = media_PM, y = Mortalidad)) +
 
 
 
-##### Conclusiones:
+##### **Conclusiones**:
 
 Las partículas PM 2.5 y PM 10 son contaminantes del aire de tamaño microscópico (2.5 micras y 10 micras respectivamente) que pueden ingresar al cuerpo al respirar, a través de los pulmones . La diferencia es que las PM 2.5 son más pequeñas y pueden llegar más profundamente en el organismo, incluso entrando al torrente sanguíneo. Cuando una mujer embarazada está expuesta a altos niveles de estas partículas, pueden generar problemas tanto para ella como para el embrión.
 
@@ -786,7 +787,7 @@ Además, la contaminación por PM 2.5 y PM 10 puede alterar el flujo sanguíneo 
 
 Es por ello que en la mayoría de casos una de las recomendaciones dadas a las embarazadas es evitar salir días en los que la presencia de estas partículas PM sea elevada, es decir, los días de calima intensa.
 
-Esto se puede observar en alguna de las comuniddes atónomas estudiadas, como Aragón, que entre 2004 y 2010 tuvo unos niveles de mortalidad prenatal elevados, y esto esta relacionado con los años de mayor contaminación en esta comunidad. Sin embargo, en los últimos años gracias a la disminución de los contaminantes y a los continuos avances médicos ha echo que estos niveles hayan llegado a mínimas históricas de un 0.2% de mortalidad prenatal y esto no solo ha ocurrido en aragón, sino que también en aquellas zonas como Andalucía o Castilla la Mancha, en las que en los momentos de máxima contaminación presentaban niveles de mortalidad prenatal elvados, y en las épocas de mínima contaminación este valor era más reducido.
+Esto se puede observar en alguna de las comuniddes atónomas estudiadas, como Aragón, que entre 2004 y 2010 tuvo unos niveles de mortalidad prenatal elevados, y esto esta relacionado con los años de mayor contaminación en esta comunidad. Sin embargo, en los últimos años gracias a la disminución de los contaminantes y a los continuos avances médicos ha echo que estos niveles hayan llegado a mínimas históricas de un 0.2% de mortalidad prenatal y esto no solo ha ocurrido en Aragón, sino que también en aquellas zonas como Andalucía o Castilla la Mancha, en las que en los momentos de máxima contaminación presentaban niveles de mortalidad prenatal elevados, y en las épocas de mínima contaminación este valor era más reducido.
 
 
 ### **Relación con contaminantes acústicos**
@@ -794,7 +795,7 @@ Esto se puede observar en alguna de las comuniddes atónomas estudiadas, como Ar
 En este apartado se estudiará la evolución de la población afectada por ruidos externos a lo largo de los años en cada comunidad autónoma y su posible relación con el número de muertes prenatales.
 
 
-#### - **Población afectada por ruido**
+#### · **Población afectada por ruido**
 
 El siguiente grafico muestra la evolución de la población afectada por ruido externo en cada Comunidad Autonoma.
 
@@ -863,10 +864,10 @@ A partir del gráfico obtenemos que las comunidades autonomas cuya población es
 Estos resultados contradicen la idea que teníamos sobre que seguramente aquellas comunidades con ciudades más grandes, como Madrid o Barcelona, al tener un número más grande de habitantes podrían estar más afectados por ruidos ya que hay más "movimiento".
 
 
-#### - **Relación entre ruido/mortalidad prenatal**
+#### · **Relación entre ruido/mortalidad prenatal**
 
 
-A continuación haremos lo mismo pero en este caso, uniendo la tabla de mortalidad prenatal junto con la de ruido ambiente.
+A continuación, haremos lo mismo pero en este caso, uniendo la tabla de mortalidad prenatal junto con la de ruido ambiente.
 ```{r , eval = TRUE,message=FALSE}
 
 
@@ -1182,11 +1183,54 @@ ggplot(data_mel_ru, aes(x = Ruido, y = Mortalidad)) +
 ```
 
 
-##### Conclusiones
+##### **Conclusiones**
 
-Dependiendo de la Comunidad Autónoma que quieras elegir, presenta un comportamiento distinto. Por ejemplo, 
+El ruido puede ser uno de los factores que puedan causar problemas en el embarazo, ya que si la madre es sometida a grandes cantidades de ruido, sus niveles de estrés pueden aumentar llegando a afectar al embarazo.
+
+Las siguientes gráficas tratan de demostrar si existe realación entre población afectada por ruido y mortalidad prenatal. Dependiendo de la Comunidad Autónoma que se eliga , presentan un comportamiento distinto. 
+
+Por ejemplo, en Andalucía se muestra como la línea de tendencia es ascendente y gran parte de los valores se encuentran dentro de los intervalos de confianza lo que indican que si que existe cierta correlación entre la población afectada por ruido y la mortalidad prenatal. Aunque como la pendiente de la línea no es muy pronunciada, la correlación no es muy fuerte.
+
+En otros casos, como Melilla en los que los gráfico anteriores mostraba una gran tasa de mortalidad prenatal y población afectada por ruido, nos daría a pensar que tendrían una correlación muy fuerte, pero parece que el gráfico desmonta esta teoría mostrando una línea de tendencia que desciende ligeramente indicando que no tienen gran correlación. Llegando a la conclusión de que el ruido tampoco parece tener una relación influyente en los embarazos. 
+
+En resumen, los resultados indican que la relación entre el ruido y la mortalidad prenatal varían según la Comunidad Autónoma, llegando en algunos casos a tener relación y en otros no. 
+Esto nos lleva a pensar que el ruido puede ser un factor de riesgo indirecto, pero no una de las causas determinantes de la mortalidad prenatal.
 
 
 
 
-## Conclusión General:
+## **Conclusión General**
+
+Los resultados obtenidos nos permiten resolver la pregunta del objetivo general: *¿La contaminación del aire y la exposición al ruido pueden estar asociados con el número de casos de mortalidad fetal?*
+
+En cuanto a la **contaminación del aire**, se obtiene que si existe cierta relación con la mortalidad prenatal ya que en algunas comunidades autónomas en momentos de máxima contaminación presentaban niveles de mortalidad prenatal elevados.
+
+Sobre la **contaminación acústica** se observaron resultados más diversos en el que en algunas comunidades la relación parece ser positiva en cambio en otras parece ser nula.
+
+En conclusión, podemos sugerir que tanto la contaminación del aire y la acústica parecen ser **factores de riesgos indirectos** ya que sí que pueden llegar a afectar al embarazo causando problemas, pero no se podrían considerar una causa directa por los distintos tipos de respuesta en cuanto a la correlación en cada Comunidad Autónoma.
+
+
+## **Bibliografía**
+
+  1. Prisma. (2023, January 5). Las partículas PM10 y cómo se generan. Eurofins Environment Testing Spain. https://www.eurofins-environment.es/es/particulas-pm10-y-como-se-generan/
+
+  2. Muerte prenatal. (n.d.). Www.who.int. https://www.who.int/es/health-topics/stillbirth#tab=tab_2
+
+  3. DeFranco, E., Hall, E., Hossain, M., Chen, A., Haynes, E. N., Jones, D., Ren, S., Lu, L., & Muglia, L. (2015). Air pollution and stillbirth risk: exposure to airborne particulate matter during pregnancy is associated with fetal death. PloS one, 10(3), e0120594. https://doi.org/10.1371/journal.pone.0120594
+
+  4. Nyadanu, S. D., Dunne, J., Tessema, G. A., Mullins, B., Kumi-Boateng, B., Lee Bell, M., Duko, B., & Pereira, G. (2022). Prenatal exposure to ambient air pollution and adverse birth outcomes: An umbrella review of 36 systematic reviews and meta-analyses. Environmental pollution (Barking, Essex : 1987), 306, 119465. https://doi.org/10.1016/j.envpol.2022.119465
+
+  5. Siddika, N., Balogun, H. A., Amegah, A. K., & Jaakkola, J. J. (2016). Prenatal ambient air pollution exposure and the risk of stillbirth: systematic review and meta-analysis of the empirical evidence. Occupational and environmental medicine, 73(9), 573–581. https://doi.org/10.1136/oemed-2015-103086
+
+  6. Sivakumaran, K., Ritonja, J. A., Waseem, H., AlShenaibar, L., Morgan, E., Ahmadi, S. A., Denning, A., Michaud, D., & Morgan, R. L. (2022). Impact of Noise Exposure on Risk of Developing Stress-Related Obstetric Health Effects: A Systematic Review and Meta-Analysis. Noise & health, 24(114), 137–144. https://doi.org/10.4103/nah.nah_22_22
+
+  7. A Grammar of Animated Graphics. (n.d.). Gganimate.com. https://gganimate.com/
+
+  8. mapSpain: Mapas de España en R [Spanish]. (2021). Github.io. https://ropenspain.github.io/mapSpain/articles/x02_mapasesp.html
+
+  9. INE. (2019). Instituto Nacional de Estadistica. (Spanish Statistical Office). Www.ine.es. https://www.ine.es/
+
+  10. ariamsita. (2021, March 6). tuto[R]iales: haciendo mapas de España con R. YouTube. https://www.youtube.com/watch?v=N00NbrQ1KSQ
+
+‌
+
