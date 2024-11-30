@@ -390,16 +390,7 @@ datatable(media_calidad_aire)
 A partir de la tabla anterior, se puede visualizar la evolución de la concentración de particulas en el aire, siendo las comunidades autónomas coloreadas con un color más oscuro las que tienen mayor concentración de PM:
 
 ```{r , echo = FALSE, eval = TRUE,message=FALSE, warning=FALSE}
-library(dplyr)
-library(ggplot2)
-library(mapSpain)
-library(gganimate)
-library(gifski)
-library(ggplot2)
-library(gganimate)
 
-# Paso 1: Preparar los datos y unificar nombres
-# Asegúrate de que tienes un dataframe con las columnas de año
 datos <- media_calidad_aire %>%
   mutate(
     Comunidades_Autonomas = gsub("^\\d+ ", "", Comunidades_Autonomas) %>% trimws(),
@@ -407,7 +398,6 @@ datos <- media_calidad_aire %>%
     Año = as.integer(Año)
   )
 
-# Paso 2: Obtener el codelist, unificar con datos y shapefile
 ccaa_sf <- esp_get_ccaa() %>%
   left_join(
     mapSpain::esp_codelist %>% select(ine.ccaa.name, codauto) %>%
@@ -417,10 +407,6 @@ ccaa_sf <- esp_get_ccaa() %>%
   ) %>%
   left_join(datos, by = "Comunidades_Autonomas") %>%
   mutate(valor = replace_na(valor, 0))
-
-# Paso 3: Graficar el mapa con animación
-
-# Crea el gráfico animado
 
 grafico_animado <- ggplot(ccaa_sf) +
   geom_sf(aes(fill = valor), color = "grey70", linewidth = .3) +
@@ -438,7 +424,6 @@ grafico_animado <- ggplot(ccaa_sf) +
 
 grafico_animado_contaminacion <- animate(grafico_animado, nframes = 85, fps = 4)
 
-# Renderiza la animación
 grafico_animado_contaminacion
 ```
 En el siguiente gráfico se muestra la misma información pero de una forma fija y puede ayudar a ver mejor las diferencias entre las comunidades autónomas
@@ -790,7 +775,7 @@ ggplot(data_mel, aes(x = media_PM, y = Mortalidad)) +
 
 
 
-###### Conclusiones:
+##### Conclusiones:
 
 
 
@@ -808,9 +793,8 @@ En este apartado se estudiará la evolución de la población afectada por ruido
 El siguiente grafico muestra la evolución de la población afectada por ruido externo en cada Comunidad Autonoma.
 
 ```{r , echo = FALSE, eval = TRUE,message=FALSE, warning=FALSE}
+#MAPA
 
-# Paso 1: Preparar los datos y unificar nombres
-# Asegúrate de que tienes un dataframe con las columnas de año
 datos <- RUIDO_CCAA %>%
   mutate(
     Comunidades_Autonomas = gsub("^\\d+ ", "", Comunidades_Autonomas) %>% trimws(),
@@ -818,7 +802,7 @@ datos <- RUIDO_CCAA %>%
     Año = as.integer(Año)
   )
 
-# Paso 2: Obtener el codelist, unificar con datos y shapefile
+
 ccaa_sf <- esp_get_ccaa() %>%
   left_join(
     mapSpain::esp_codelist %>% select(ine.ccaa.name, codauto) %>%
@@ -829,9 +813,6 @@ ccaa_sf <- esp_get_ccaa() %>%
   left_join(datos, by = "Comunidades_Autonomas") %>%
   mutate(valor = replace_na(valor, 0))
 
-# Paso 3: Graficar el mapa con animación
-
-# Crea el gráfico animado
 
 grafico_animado <- ggplot(ccaa_sf) +
   geom_sf(aes(fill = valor), color = "grey70", linewidth = .3) +
@@ -849,7 +830,6 @@ grafico_animado <- ggplot(ccaa_sf) +
 
 grafico_animado_ruido <- animate(grafico_animado, nframes = 85, fps = 3)
 
-# Renderiza la animación
 grafico_animado_ruido
 ```
 
@@ -902,7 +882,7 @@ p <- ggplot(mortalidad_RUIDO, aes(x = Ruido, y = Mortalidad, colour = Comunidade
   facet_wrap(~ Comunidades_Autonomas) +
   labs(
     title = 'Año: {frame_time}',
-    x = 'Población.Ruido (%)',
+    x = 'Población afectada por Ruido (%)',
     y = 'Mortalidad prenatal',
     color = "Comunidad Autónoma"
   ) +
