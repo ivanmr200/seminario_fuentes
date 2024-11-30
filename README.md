@@ -26,9 +26,7 @@ El objetivo principal es demostrar si la contaminación del aire y la exposició
 
 ## Conclusiones
 
+Los resultados muestran una gran variabilidad de respuestas tanto en la relación de la mortalidad prenatal con la contaminación del aire, como de la acústica lo que nos permite sugerir que ambos son **factores de riesgo indirecto**, es decir, pueden tener algún efecto sobre el embarazo que pueda llegar a causar la muerte prenatal, pero no son la causa directa del problema.
 
-
-
-   
 ***
 Autores: Álvar Martínez e Iván Mamolar
